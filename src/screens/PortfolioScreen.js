@@ -5,14 +5,25 @@ import styled from 'styled-components'
 
 export default ({ navigation }) => {
     const [wallets, setWallets] = useState([])
+    const [coins, setCoins] = useState({})
 
     useEffect(() => {
-        getList()
-    }, [])
+        const sub = navigation.addListener('focus', () => {
+            getList()
+            fetchCoins()
+        })
+        return sub
+    }, [navigation])
 
     const getList = () => fetch(`${config.API_URL}/Wallets`)
         .then(res => res.json())
         .then(res => setWallets(res))
+        .then(() => console.log('wallet data updated'))
+
+    const fetchCoins = () => fetch(`${config.API_URL}/Coins`)
+        .then(res => res.json())
+        .then(res => res.reduce((acc, cur) => ({ ...acc, [cur.id]: cur }), {}))
+        .then(res => setCoins(res))
 
     return (
         <FlatList
@@ -20,6 +31,7 @@ export default ({ navigation }) => {
             renderItem={({ item }) => (
                 <ItemView key={item.id}>
                     <TitleText>{item.balance} {item.coin.ticker.toUpperCase()}</TitleText>
+                    <Text style={{ color: 'grey' }}>~{coins && item.coin && item.coin.id && coins[item.coin.id] && coins[item.coin.id].usd ? (coins[item.coin.id].usd * item.balance).toFixed(2): 0} USD</Text>
                     <SubText>{item.address}</SubText>
                     <Divider />
                 </ItemView>

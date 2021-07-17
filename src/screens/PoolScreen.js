@@ -8,8 +8,9 @@ export default ({ route, navigation }) => {
     const [workers, setWorkers] = useState([])
 
     useEffect(() => {
-        getList()
-    }, [])
+        const sub = navigation.addListener('focus', () => getList())
+        return sub
+    }, [navigation])
 
     const getList = () => fetch(`${config.API_URL}/MiningPools/${id}`)
         .then(res => res.json())
@@ -20,6 +21,13 @@ export default ({ route, navigation }) => {
             )
         ))
         .then(workers => setWorkers(workers))
+        .then(() => console.log('worker data updated'))
+    
+    const addHours = date => {
+        const t = new Date(date)
+        t.setHours(t.getHours() + 8)
+        return t
+    }
 
     return (
         <FlatList
@@ -36,6 +44,7 @@ export default ({ route, navigation }) => {
                             <Text>current: {(item.hashrates[0].current / 1000000).toFixed(3)} MH/s</Text>
                             <Text>average: {(item.hashrates[0].average / 1000000).toFixed(3)} MH/s</Text>
                             <Text>reported: {(item.hashrates[0].reported / 1000000).toFixed(3)} MH/s</Text>
+                            <Text>Last report: {addHours(item.hashrates[0].created).toLocaleString()}</Text>
                         </>
                     ) : null}
                     <Divider />

@@ -8,19 +8,23 @@ export default ({ navigation }) => {
     const [coins, setCoins] = useState({})
 
     useEffect(() => {
-        getList()
-        fetchCoins()
-    }, [])
+        const sub = navigation.addListener('focus', () => {
+            getList()
+            fetchCoins()
+        })
+        return sub
+    }, [navigation])
 
     const getList = () => fetch(`${config.API_URL}/Accounts`)
         .then(res => res.json())
         .then(res => Promise.all(
-            res.map(account => 
+            res.map(account =>
                 fetch(`${config.API_URL}/Accounts/${account.id}`)
                     .then(res => res.json())
             )
         ))
         .then(res => setAccounts(res))
+        .then(() => console.log('account data updated'))
 
     const fetchCoins = () => fetch(`${config.API_URL}/Coins`)
         .then(res => res.json())
@@ -33,7 +37,7 @@ export default ({ navigation }) => {
             [cur.provider.name]: {
                 ...cur,
                 accountBalances: acc[cur.provider.name]
-                    ? [ ...acc[cur.provider.name].accountBalances, ...cur.accountBalances ]
+                    ? [...acc[cur.provider.name].accountBalances, ...cur.accountBalances]
                     : cur.accountBalances
             }
         }), {})
@@ -43,8 +47,8 @@ export default ({ navigation }) => {
         balances.reduce((acc, cur) => ({
             ...acc,
             [coins[cur.coinId].ticker]: acc[coins[cur.coinId].ticker]
-                ? { ticker: coins[cur.coinId].ticker, value: acc[coins[cur.coinId].ticker].value + cur.current }
-                : { ticker: coins[cur.coinId].ticker, value: cur.current }
+                ? { ...acc[coins[cur.coinId].ticker], value: acc[coins[cur.coinId].ticker].value + cur.current }
+                : { ticker: coins[cur.coinId].ticker, value: cur.current, coinId: cur.coinId }
         }), {})
     )
 
@@ -54,9 +58,13 @@ export default ({ navigation }) => {
             (
                 <View key={account.id}>
                     <TitleText>{account.provider.name}</TitleText>
-                    {coins ? combinedCoinBalances(account.accountBalances).map(({ ticker, value }) => (
-                        <Text key={ticker}>{ticker}: {value.toFixed(6)}</Text>
-                    )) : null }
+                    {coins ? combinedCoinBalances(account.accountBalances).map(({ ticker, value, coinId }) => (
+                        <View key={ticker}>
+                            <Text>{ticker}: {value.toFixed(6)}</Text>
+                            <ValueText>~{coinId ? (value * coins[coinId].usd).toFixed(2) : ''} USD</ValueText>
+                        </View>
+
+                    )) : null}
                     <Divider />
                 </View>
             )
@@ -74,7 +82,7 @@ const TitleText = styled.Text`
 `
 
 const ValueText = styled.Text`
-    font-size: 18px;
+    color: grey;
 `
 
 const Divider = styled.View`

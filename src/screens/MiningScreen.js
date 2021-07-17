@@ -9,8 +9,9 @@ export default ({ navigation }) => {
     const [balances, setBalances] = useState({})
 
     useEffect(() => {
-        getList()
-    }, [])
+        const sub = navigation.addListener('focus', () => getList())
+        return sub
+    }, [navigation])
 
     const getList = () => fetch(`${config.API_URL}/MiningPools`)
         .then(res => res.json())
@@ -22,6 +23,7 @@ export default ({ navigation }) => {
         ))
         .then(pools => {
             setPools(pools)
+            console.log('pool data updated')
 
             Promise.all(
                 pools.map(pool => Promise.all(
@@ -66,7 +68,7 @@ export default ({ navigation }) => {
                     onPress={() => navigation.navigate('Mining Pool', { id: pool.id, name: pool.name })}
                 >
                     <TitleText>{pool.name}</TitleText>
-                    <Text>hashrate: {(hashrates[pool.name] / 1000000000).toFixed(3)} GH/s</Text>
+                    <Text>Hashrate: {(hashrates[pool.name] / 1000000000).toFixed(3)} GH/s</Text>
                     {balances[pool.name] ? Object.keys(balances[pool.name]).map(key => (
                         <Text key={key}>{key.toUpperCase()}: {balances[pool.name][key].toFixed(6)}</Text>
                     )) : null}
