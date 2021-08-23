@@ -1,4 +1,7 @@
 import React from 'react'
+import PushNotificationIOS from '@react-native-community/push-notification-ios'
+import PushNotification from 'react-native-push-notification'
+import config from 'react-native-config'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
@@ -8,6 +11,42 @@ import PoolScreen from './screens/PoolScreen'
 import WorkerScreen from './screens/WorkerScreen'
 import FinanceScreen from './screens/FinanceScreen'
 import PortfolioScreen from './screens/PortfolioScreen'
+
+PushNotification.configure({
+    onRegister: token => {
+        console.log("token: ", token)
+        const payload = {
+            id: '1',
+            username: 'michael',
+            apn: token.token
+        }
+
+        fetch(
+            `${config.API_URL}/Users/1`, 
+            { method: 'PUT', body: JSON.stringify(payload), headers: {
+                'content-type': 'application/json'
+            } }
+        ).then(res => console.log(res))
+    },
+    onNotification: notification => {
+        console.log("notification: ", notification)
+        notification.finish(PushNotificationIOS.FetchResult.NoData)
+    },
+    onAction: notification => {
+        console.log("action: ", notification.action)
+        console.log('notification: ', notification)
+    },
+    onRegistrationError: err => {
+        console.error(err.message, err)
+    },
+    permissions: {
+        alert: true,
+        badge: true,
+        sound: true
+    },
+    popInitialNotification: true,
+    requestPermissions: true
+})
 
 const HomeTab = createBottomTabNavigator()
 const MiningStack = createNativeStackNavigator()
