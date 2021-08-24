@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { Text, TouchableOpacity } from 'react-native'
+import { Text, TouchableOpacity, View } from 'react-native'
 import config from 'react-native-config'
 import styled from 'styled-components'
+import HashrateHistory from '../components/HashrateHistory'
 
 export default ({ navigation }) => {
     const [pools, setPools] = useState([])
@@ -16,7 +17,7 @@ export default ({ navigation }) => {
     const getList = () => fetch(`${config.API_URL}/MiningPools`)
         .then(res => res.json())
         .then(pools => Promise.all(
-            pools.map(pool => 
+            pools.map(pool =>
                 fetch(`${config.API_URL}/MiningPools/${pool.id}`)
                     .then(res => res.json())
             )
@@ -27,17 +28,17 @@ export default ({ navigation }) => {
 
             Promise.all(
                 pools.map(pool => Promise.all(
-                    pool.workers.map(worker => 
+                    pool.workers.map(worker =>
                         fetch(`${config.API_URL}/Workers/${worker.id}`)
                             .then(res => res.json())
                     )
                 )
                     .then(res => res.reduce((acc, cur) => acc + cur.hashrates[0].current, 0))
                     .then(res => ({ pool, hashrate: res })
-                ))
+                    ))
             )
-            .then(res => res.reduce((acc, cur) => ({ ...acc, [cur.pool.name]: cur.hashrate }), {}))
-            .then(res => setHashrates(res))
+                .then(res => res.reduce((acc, cur) => ({ ...acc, [cur.pool.name]: cur.hashrate }), {}))
+                .then(res => setHashrates(res))
 
 
             fetch(`${config.API_URL}/Wallets/`)
@@ -51,19 +52,23 @@ export default ({ navigation }) => {
                             .reduce((acc, cur) => ({
                                 ...acc,
                                 [wallets[cur.address].coin.ticker]: acc[wallets[cur.address].coin.ticker]
-                                    ? acc[wallets[cur.address].coin.ticker] + cur.current 
+                                    ? acc[wallets[cur.address].coin.ticker] + cur.current
                                     : cur.current
                             }), {})
                     }),
                     {}
                 ))
-                .then(sortedBalances => setBalances(sortedBalances))         
+                .then(sortedBalances => setBalances(sortedBalances))
         })
 
     return (
-        <MiningView>
+        <>
+        <View style={{ margin: 24 }}>
+            <HashrateHistory />
+        </View>
+            
             {pools.map(pool => (
-                <TouchableOpacity 
+                <TouchableOpacity
                     key={pool.name}
                     onPress={() => navigation.navigate('Mining Pool', { id: pool.id, name: pool.name })}
                 >
@@ -75,12 +80,16 @@ export default ({ navigation }) => {
                     <Divider />
                 </TouchableOpacity>
             ))}
-        </MiningView>
+        </>
     )
 }
 
 const MiningView = styled.View`
     margin: 24px;
+`
+
+const ItemView = styled.View`
+    margin: 0 24px;
 `
 
 const TitleText = styled.Text`
