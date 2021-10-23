@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { Text, View } from 'react-native'
 import config from 'react-native-config'
 import styled from 'styled-components/native'
 
-export default HomeScreen = () => {
+export default HomeScreen = ({ navigation }) => {
     const [wallets, setWallets] = useState([])
 
     useEffect(() => {
@@ -15,7 +14,7 @@ export default HomeScreen = () => {
 
         const res = await fetch(`${config.API_URL}/MiningPools`)
         const pool = await res.json()
-        
+
         setWallets([])
 
         // if(pool && pool.poolBalances) {
@@ -47,11 +46,6 @@ const TitleText = styled.Text`
     font-size: 24px;
 `
 
-const ValueText = styled.Text`
-    font-size: 18px;
-`
+const TestButton = styled.TouchableHighlight`
 
-const Divider = styled.View`
-    border: .5px solid grey;
-    margin: 24px 4px;
 `
