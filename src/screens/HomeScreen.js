@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Text, View } from 'react-native'
 import config from 'react-native-config'
-import styled from 'styled-components'
+import styled from 'styled-components/native'
 
 export default HomeScreen = () => {
     const [wallets, setWallets] = useState([])
@@ -32,17 +32,9 @@ export default HomeScreen = () => {
 
     return (
         <HomeView>
-            {wallets.map(wallet => 
-                (
-                    <View key={wallet.id}>
-                        <TitleText>Wallet Address</TitleText>
-                        <Text>{ wallet.address }</Text>
-                        <TitleText>Pool Balance</TitleText>
-                        <ValueText>{ wallet.balance } { wallet.coin.ticker.toUpperCase() }</ValueText>
-                        <Divider />
-                    </View>
-                )
-            )}
+            <TitleText>
+                Home Screen
+            </TitleText>
         </HomeView>
     )
 }

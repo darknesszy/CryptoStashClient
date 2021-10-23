@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Text, TouchableOpacity, FlatList } from 'react-native'
 import config from 'react-native-config'
-import styled from 'styled-components'
+import styled from 'styled-components/native'
 
 export default ({ route, navigation }) => {
     const { id } = route.params

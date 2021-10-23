@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Text, TouchableOpacity, View } from 'react-native'
 import config from 'react-native-config'
-import styled from 'styled-components'
-import HashrateHistory from '../components/HashrateHistory'
+import styled from 'styled-components/native'
+// import HashrateHistory from '../components/HashrateHistory'
 
 export default ({ navigation }) => {
     const [pools, setPools] = useState([])
@@ -10,6 +10,7 @@ export default ({ navigation }) => {
     const [balances, setBalances] = useState({})
 
     useEffect(() => {
+        console.log(config.API_URL)
         const sub = navigation.addListener('focus', () => getList())
         return sub
     }, [navigation])
@@ -63,9 +64,9 @@ export default ({ navigation }) => {
 
     return (
         <>
-        <View style={{ margin: 24 }}>
+        {/* <View style={{ margin: 24 }}>
             <HashrateHistory />
-        </View>
+        </View> */}
             
             {pools.map(pool => (
                 <TouchableOpacity

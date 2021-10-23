@@ -4,8 +4,10 @@
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
 
+// CHANGE: @react-native-community/push-notification-ios
 #import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
+// END CHANGE: @react-native-community/push-notification-ios
 
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
@@ -51,13 +53,16 @@ static void InitializeFlipper(UIApplication *application) {
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
 
+  // CHANGE: @react-native-community/push-notification-ios
   // Define UNUserNotificationCenter
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
+  // END CHANGE: @react-native-community/push-notification-ios
 
   return YES;
 }
 
+// CHANGE: @react-native-community/push-notification-ios
 //Called when a notification is delivered to a foreground app.
 -(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
@@ -87,6 +92,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 {
   [RNCPushNotificationIOS didReceiveNotificationResponse:response];
 }
+// END CHANGE: @react-native-community/push-notification-ios
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
 {

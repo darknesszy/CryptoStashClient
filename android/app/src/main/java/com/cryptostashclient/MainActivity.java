@@ -1,6 +1,9 @@
 package com.cryptostashclient;
 
 import com.facebook.react.ReactActivity;
+// CHANGE: react-native-screens
+import android.os.Bundle;
+// END CHANGE: react-native-screens
 
 public class MainActivity extends ReactActivity {
 
@@ -12,4 +15,11 @@ public class MainActivity extends ReactActivity {
   protected String getMainComponentName() {
     return "CryptoStashClient";
   }
+
+  // CHANGE: react-native-screens
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(null);
+  }
+  // END CHANGE: react-native-screens
 }

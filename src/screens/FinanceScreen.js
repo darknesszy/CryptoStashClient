@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Text, View } from 'react-native'
 import config from 'react-native-config'
-import styled from 'styled-components'
+import styled from 'styled-components/native'
 
 export default ({ navigation }) => {
     const [accounts, setAccounts] = useState([])
