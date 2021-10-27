@@ -4,6 +4,7 @@ import PushNotificationIOS from '@react-native-community/push-notification-ios'
 import PushNotification from 'react-native-push-notification'
 import config from 'react-native-config'
 import Navigation from './navigation'
+import UserProvider from './components/UserProvider'
 
 if (Platform.OS == 'ios') {
     PushNotification.configure({
@@ -43,10 +44,14 @@ if (Platform.OS == 'ios') {
         popInitialNotification: true,
         requestPermissions: true
     })
+
+
 }
 
 export default () => {
     return (
-        <Navigation />
+        <UserProvider>
+            <Navigation />
+        </UserProvider>
     )
 }

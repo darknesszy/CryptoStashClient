@@ -92,7 +92,7 @@ const PortfolioStackScreen = () => (
 const TabNavigator = () => (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
         {/* <Tab.Screen name="Home Stack" component={HomeStackScreen} /> */}
-        <Tab.Screen name="Test" component={DrawerScreen} />
+        {/* <Tab.Screen name="Test" component={DrawerScreen} /> */}
         <Tab.Screen name="Mining" component={MiningStackScreen} />
         <Tab.Screen name="Finance" component={FinanceStackScreen} />
         <Tab.Screen name="Wallet" component={PortfolioStackScreen} />

@@ -1,27 +1,25 @@
-import React, { useEffect, useState } from 'react'
-import config from 'react-native-config'
+import React, { useContext } from 'react'
 import styled from 'styled-components/native'
 import Button from '../components/Button'
-import useUser from '../hooks/useUser'
+import { UserContext } from '../components/UserProvider'
 
 export default DrawerScreen = ({ navigation }) => {
-    const { isLoggedIn } = useUser()
+    // const { signin, signout, sub, preferred_username } = useUser()
+    const { signin, signout, sub, preferred_username } = useContext(UserContext)
 
     return (
         <DrawerView>
             <UserView>
                 <Icon />
-                {isLoggedIn
+                {sub
                     ? (
                         <UserInfoView>
-                            <UsernameText>Michael</UsernameText>
+                            <UsernameText>{preferred_username}</UsernameText>
                             <UserSubText>User since {new Date().toString()}</UserSubText>
                         </UserInfoView>
                     )
                     : (
-                        <LoginButton onPress={() =>
-                            navigation.navigate('Authentication')
-                        }>
+                        <LoginButton onPress={signin}>
                             <MenuText>Login / Register</MenuText>
                         </LoginButton>
                     )
@@ -33,8 +31,8 @@ export default DrawerScreen = ({ navigation }) => {
             <MenuButton>
                 <MenuText>Help & feedback</MenuText>
             </MenuButton>
-            {isLoggedIn ? (
-                <MenuButton>
+            {sub ? (
+                <MenuButton onPress={signout}>
                     <MenuText>Log out</MenuText>
                 </MenuButton>
             ) : null}

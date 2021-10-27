@@ -139,6 +139,11 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        // CHANGE: react-native-app-auth
+        manifestPlaceholders = [
+            appAuthRedirectScheme: 'com.cryptostashclient'
+        ]
+        // END CHANGE: react-native-app-auth
     }
     splits {
         abi {
