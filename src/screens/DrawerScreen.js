@@ -1,5 +1,6 @@
 import React, { useContext } from 'react'
 import styled from 'styled-components/native'
+import { DrawerContentScrollView } from '@react-navigation/drawer'
 import Button from '../components/Button'
 import { UserContext } from '../components/UserProvider'
 
@@ -40,7 +41,7 @@ export default DrawerScreen = ({ navigation }) => {
     )
 }
 
-const DrawerView = styled.View`
+const DrawerView = styled(DrawerContentScrollView)`
     margin-top: 24px;
     padding: 0 24px;
 `

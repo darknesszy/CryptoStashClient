@@ -141,7 +141,7 @@ android {
         versionName "1.0"
         // CHANGE: react-native-app-auth
         manifestPlaceholders = [
-            appAuthRedirectScheme: 'com.cryptostashclient'
+            appAuthRedirectScheme: 'com.cryptostashclient.auth'
         ]
         // END CHANGE: react-native-app-auth
     }

@@ -1,7 +1,7 @@
 import React, { useState, createContext } from 'react'
 import config from 'react-native-config'
 import { authorize, revoke } from 'react-native-app-auth'
-import { Linking } from 'react-native'
+import { AppState, Linking } from 'react-native'
 
 export const UserContext = createContext({})
 
@@ -12,72 +12,85 @@ export default UserProvider = props => {
     const authConfig = {
         issuer: config.ID_URL,
         clientId: 'cryptostashclient',
-        redirectUrl: 'com.cryptostashclient:/oauth',
-        scopes: ['openid', 'profile'],
+        redirectUrl: 'com.cryptostashclient.auth:/oauth',
+        scopes: ['openid', 'profile', 'offline_access'],
         // dangerouslyAllowInsecureHttpRequests: true,
     }
 
     const signin = () => redirectToLogin()
         .then(({ accessToken }) => accessToken && getUserInfo(accessToken))
 
-    const signout = () => {
-        return Linking.openURL(`${config.ID_URL}/account/logout`)
-        .then(() => {
-            setTokenStore(null)
-            setInfo(null)
-        })
-
-        // Unused because revoke doesn't get rid of cookie in the signin browser.
-        return revoke(authConfig, {
-            tokenToRevoke: tokenStore.idToken,
-            sendClientId: true
-        }).then(
-            res => console.log(res),
-            err => console.log(err)
-        ).then(() => {
-            setTokenStore(null)
-            setInfo(null)
-        })
-    }
-
-    // OAuth authorisation    
-    // use the client to make the auth request and receive the authState
-    const redirectToLogin = () => authorize(authConfig)
-        .then(
-            tokens => {
-                setTokenStore(tokens)
-                return tokens
-            },
-            err => {
-                console.log(err)
-                return { accessToken: undefined }
-            }
-        )
-
-    const getUserInfo = accessToken => {
-        fetch(`${config.ID_URL}/connect/userinfo`, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
+    const signout = () => Linking.openURL(`${config.ID_URL}/account/logout`)
+        .then(isOpened => {
+            if (isOpened) {
+                const linkingSub = Linking.addEventListener('url', ({ url }) => {
+                    if(url == 'com.cryptostashclient:/logout/success') {
+                        console.log('Logout complete')
+                        cleanup()
+                    }
+                })
+                const appStateSub = AppState.addEventListener("change", nextAppState => {
+                    if (nextAppState == 'active') {
+                        appStateSub.remove()
+                        linkingSub.remove()
+                    }
+                })
             }
         })
-            .then(
-                res => res.json(),
-                err => console.log(err)
-            )
-            .then(
-                res => setInfo(res),
-                err => console.log(err)
-            )
-    }
 
-    return (
-        <UserContext.Provider value={{
-            ...info,
-            signin,
-            signout,
-            getUserInfo
-        }}>
-            {props.children}
-        </UserContext.Provider>
+    const cleanup = () => revoke(authConfig, {
+        tokenToRevoke: tokenStore.refreshToken,
+        sendClientId: true
+    })
+    .then(
+        res => {
+            if (res.status == 200) {
+                setTokenStore(null)
+                setInfo(null)
+                console.log('Cleanup complete')
+            }
+        },
+        err => console.log(err)
     )
+
+// OAuth authorisation    
+// use the client to make the auth request and receive the authState
+const redirectToLogin = () => authorize(authConfig)
+    .then(
+        tokens => {
+            setTokenStore(tokens)
+            return tokens
+        },
+        err => {
+            console.log(err)
+            return { accessToken: undefined }
+        }
+    )
+
+const getUserInfo = accessToken => {
+    fetch(`${config.ID_URL}/connect/userinfo`, {
+        headers: {
+            Authorization: `Bearer ${accessToken}`
+        }
+    })
+        .then(
+            res => res.json(),
+            err => console.log(err)
+        )
+        .then(
+            res => setInfo(res),
+            err => console.log(err)
+        )
+}
+
+return (
+    <UserContext.Provider value={{
+        ...info,
+        signin,
+        signout,
+        getUserInfo
+    }}>
+        {props.children}
+    </UserContext.Provider>
+)
 }

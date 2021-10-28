@@ -25,8 +25,8 @@ const PortfolioStack = createNativeStackNavigator()
 
 const HomeStackScreen = () => (
     <HomeStack.Navigator>
-        <HomeStack.Screen 
-            name="Home" 
+        <HomeStack.Screen
+            name="Home"
             component={HomeScreen}
             options={({ navigation }) => ({
                 headerLeft: () => (
@@ -41,8 +41,8 @@ const HomeStackScreen = () => (
 
 const MiningStackScreen = () => (
     <MiningStack.Navigator>
-        <MiningStack.Screen 
-            name="Mining Dashboard" 
+        <MiningStack.Screen
+            name="Mining Dashboard"
             component={MiningScreen}
             options={({ navigation }) => ({
                 headerLeft: () => (
@@ -104,7 +104,6 @@ export default Navigation = () => {
         <NavigationContainer>
             <Drawer.Navigator drawerContent={props => <DrawerScreen {...props} />}>
                 <Drawer.Screen name="TabNavigator" component={TabNavigator} options={{ headerShown: false }} />
-                <Drawer.Screen name="Authentication" component={AuthScreen} options={{ headerShown: false }} />
             </Drawer.Navigator>
         </NavigationContainer>
     )
