@@ -25,7 +25,8 @@ const TabNavigation = () => (
 export default Navigation = () => (
     <NavigationContainer>
         <Drawer.Navigator>
-            <Drawer.Screen name="Tabs" component={TabNavigation} />
+            {/* <Drawer.Screen name="Tabs" component={TabNavigation} /> */}
+            <Drawer.Screen name="Test Stack" component={TestStack} />
         </Drawer.Navigator>
     </NavigationContainer>
 )
