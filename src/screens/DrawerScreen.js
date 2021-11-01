@@ -4,8 +4,7 @@ import { DrawerContentScrollView } from '@react-navigation/drawer'
 import Button from '../components/Button'
 import { UserContext } from '../components/UserProvider'
 
-export default DrawerScreen = ({ navigation }) => {
-    // const { signin, signout, sub, preferred_username } = useUser()
+export default DrawerScreen = () => {
     const { signin, signout, sub, preferred_username } = useContext(UserContext)
 
     return (

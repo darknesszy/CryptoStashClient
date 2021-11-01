@@ -1,27 +1,22 @@
 import React, { useEffect, useState } from 'react'
-import { Text, TouchableOpacity, FlatList } from 'react-native'
-import config from 'react-native-config'
+import { Text, TouchableOpacity, FlatList, View } from 'react-native'
 import styled from 'styled-components/native'
+import Button from '../components/Button'
+import useHashrate from '../hooks/useHashrate'
+import usePool from '../hooks/usePool'
 
 export default ({ route, navigation }) => {
     const { id } = route.params
-    const [workers, setWorkers] = useState([])
+    const { hashrateGroup, workers, getHashrates, readableHashrate } = useHashrate()
+    const { getPools } = usePool()
 
     useEffect(() => {
-        const sub = navigation.addListener('focus', () => getList())
-        return sub
+        const unsub = navigation.addListener('focus', () => {
+            getHashrates()
+            getPools()
+        })
+        return unsub
     }, [navigation])
-
-    const getList = () => fetch(`${config.API_URL}/MiningPools/${id}`)
-        .then(res => res.json())
-        .then(pool => Promise.all(
-            pool.workers.map(worker => 
-                fetch(`${config.API_URL}/Workers/${worker.id}`)
-                    .then(res => res.json())
-            )
-        ))
-        .then(workers => setWorkers(workers))
-        .then(() => console.log('worker data updated'))
     
     const addHours = date => {
         const t = new Date(date)
@@ -29,33 +24,32 @@ export default ({ route, navigation }) => {
         return t
     }
 
+    const goToWorker = worker => () => navigation.push('Worker', { name: worker.name, id: worker.id })
+
     return (
         <FlatList
-            data={workers}
-            renderItem={({ item }) => (
-                <ListTouchable
-                    key={item.id}
-                    onPress={() => navigation.navigate('Worker', { name: item.name })}
-                >
-                    <TitleText>{item.name}</TitleText>
-                    <SubText>{item.address}</SubText>
-                    {item.hashrates ? (
+            data={workers && workers.filter(worker => worker.miningPool.id == id)}
+            renderItem={({ item: worker }) => (
+                <WorkerButton key={worker.id} onPress={goToWorker(worker)}>
+                    <TitleText>{worker.name}</TitleText>
+                    <SubText>{worker.address}</SubText>
+                    {hashrateGroup ? (
                         <>
-                            <Text>current: {(item.hashrates[0].current / 1000000).toFixed(3)} MH/s</Text>
-                            <Text>average: {(item.hashrates[0].average / 1000000).toFixed(3)} MH/s</Text>
-                            <Text>reported: {(item.hashrates[0].reported / 1000000).toFixed(3)} MH/s</Text>
-                            <Text>Last report: {addHours(item.hashrates[0].created).toLocaleString()}</Text>
+                            <Text>current: {readableHashrate(hashrateGroup[worker.id][0].current)}</Text>
+                            <Text>average: {readableHashrate(hashrateGroup[worker.id][0].average)}</Text>
+                            <Text>reported: {readableHashrate(hashrateGroup[worker.id][0].reported)}</Text>
+                            <Text>Last report: {addHours(hashrateGroup[worker.id][0].created).toLocaleString()}</Text>
                         </>
                     ) : null}
                     <Divider />
-                </ListTouchable>
+                </WorkerButton>
             )}
             keyExtractor={item => item.id}
         />
     )
 }
 
-const ListTouchable = styled.TouchableOpacity`
+const WorkerButton = styled(Button)`
     margin: 0 24px;
 `
 

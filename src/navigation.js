@@ -14,6 +14,7 @@ import FinanceScreen from './screens/FinanceScreen'
 import PortfolioScreen from './screens/PortfolioScreen'
 import DrawerScreen from './screens/DrawerScreen'
 import AuthScreen from './screens/AuthScreen'
+import TestScreen from './screens/TestScreen'
 
 const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
@@ -28,14 +29,8 @@ const HomeStackScreen = () => (
         <HomeStack.Screen
             name="Home"
             component={HomeScreen}
-            options={({ navigation }) => ({
-                headerLeft: () => (
-                    <TouchableHighlight onPress={() => navigation.openDrawer()}>
-                        <Text>三</Text>
-                    </TouchableHighlight>
-                ),
-            })}
         />
+        <HomeStack.Screen name="Test" component={TestScreen} />
     </HomeStack.Navigator>
 )
 
@@ -93,9 +88,9 @@ const TabNavigator = () => (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
         {/* <Tab.Screen name="Home Stack" component={HomeStackScreen} /> */}
         {/* <Tab.Screen name="Test" component={DrawerScreen} /> */}
-        <Tab.Screen name="Mining" component={MiningStackScreen} />
-        <Tab.Screen name="Finance" component={FinanceStackScreen} />
-        <Tab.Screen name="Wallet" component={PortfolioStackScreen} />
+        <Tab.Screen name="Mining Stack" component={MiningStackScreen} />
+        <Tab.Screen name="Finance Stack" component={FinanceStackScreen} />
+        <Tab.Screen name="Wallet Stack" component={PortfolioStackScreen} />
     </Tab.Navigator>
 )
 

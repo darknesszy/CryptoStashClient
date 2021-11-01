@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react'
 import { TouchableHighlight, View } from 'react-native'
 import styled from 'styled-components/native'
 
-export default HomeScreen = ({ navigation }) => {
+export default TestScreen = ({ navigation }) => {
 
     useEffect(() => {
         const unsub = navigation.addListener("state", () => 
             {
-                console.log('@HOME', navigation.getState())
-                console.log('@HOME', navigation.getParent())
+                console.log('@TEST', navigation.getState())
+                console.log('@TEST', navigation.getParent())
             }
         )
         return unsub
@@ -16,10 +16,10 @@ export default HomeScreen = ({ navigation }) => {
 
     return (
         <HomeView>
-            <TouchableHighlight onPress={() => navigation.push('Test')}>
+            <TouchableHighlight onPress={() => navigation.goBack()}>
                 <View>
                     <TitleText>
-                        Home Screen
+                        Test Screen2
                     </TitleText>
                 </View>
             </TouchableHighlight>

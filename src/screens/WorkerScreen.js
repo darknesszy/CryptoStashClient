@@ -1,15 +1,28 @@
-import React from 'react'
-import { View } from 'react-native'
-import config from 'react-native-config'
+import React, { useEffect } from 'react'
 import styled from 'styled-components/native'
+import useHashrate from '../hooks/useHashrate'
+import usePool from '../hooks/usePool'
 
 export default ({ route, navigation }) => {
     const { id } = route.params
+    const { hashrateGroup, readableHashrate, getHashrates } = useHashrate()
+
+    useEffect(() => {
+        const unsub = navigation.addListener('focus', () => {
+            getHashrates()
+        })
+        return unsub
+    }, [navigation])
 
     return (
         <WorkerView>
-            {/* <TitleText>{worker.name}</TitleText>
-            <Text>{worker.address}</Text> */}
+            {hashrateGroup ? (
+                <>
+                    <ValueText>Current hashrate: {readableHashrate(hashrateGroup[id][0].current)}</ValueText>
+                    <ValueText>Average hashrate: {readableHashrate(hashrateGroup[id][0].average)}</ValueText>
+                    <ValueText>Reported hashrate: {readableHashrate(hashrateGroup[id][0].reported)}</ValueText>
+                </>
+            ) : null}
         </WorkerView>
     )
 }

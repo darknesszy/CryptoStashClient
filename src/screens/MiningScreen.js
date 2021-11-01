@@ -1,104 +1,92 @@
 import React, { useEffect, useState } from 'react'
-import { Text, TouchableOpacity, View } from 'react-native'
-import config from 'react-native-config'
 import styled from 'styled-components/native'
+import Button from '../components/Button'
 import HashrateHistory from '../components/HashrateHistory'
+import useHashrate from '../hooks/useHashrate'
+import usePool from '../hooks/usePool'
 
 export default ({ navigation }) => {
-    const [pools, setPools] = useState([])
-    const [hashrates, setHashrates] = useState({})
-    const [balances, setBalances] = useState({})
+    const { hashrateGroup, workers, getHashrates, getLatestHashrateTotal, getPoolTotal, readableHashrate } = useHashrate()
+    const { getPools, pools } = usePool()
+    const [icons] = useState({ eth: require(`../assets/eth.png`), zil: require(`../assets/zil.png`) })
 
     useEffect(() => {
-        console.log(config.API_URL)
-        const sub = navigation.addListener('focus', () => getList())
-        return sub
+        const unsub = navigation.addListener('focus', () => {
+            getHashrates()
+            getPools()
+        })
+        return unsub
     }, [navigation])
 
-    const getList = () => fetch(`${config.API_URL}/MiningPools`)
-        .then(res => res.json())
-        .then(pools => Promise.all(
-            pools.map(pool =>
-                fetch(`${config.API_URL}/MiningPools/${pool.id}`)
-                    .then(res => res.json())
-            )
-        ))
-        .then(pools => {
-            setPools(pools)
-            console.log('pool data updated')
-
-            Promise.all(
-                pools.map(pool => Promise.all(
-                    pool.workers.map(worker =>
-                        fetch(`${config.API_URL}/Workers/${worker.id}`)
-                            .then(res => res.json())
-                    )
-                )
-                    .then(res => res.reduce((acc, cur) => acc + cur.hashrates[0].current, 0))
-                    .then(res => ({ pool, hashrate: res })
-                    ))
-            )
-                .then(res => res.reduce((acc, cur) => ({ ...acc, [cur.pool.name]: cur.hashrate }), {}))
-                .then(res => setHashrates(res))
-
-
-            fetch(`${config.API_URL}/Wallets/`)
-                .then(res => res.json())
-                .then(wallets => wallets.reduce((acc, cur) => ({ ...acc, [cur.address]: cur }), {}))
-                .then(wallets => pools.reduce((acc, cur) => (
-                    {
-                        ...acc,
-                        [cur.name]: cur.poolBalances
-                            .filter(poolBalance => Object.keys(wallets).includes(poolBalance.address))
-                            .reduce((acc, cur) => ({
-                                ...acc,
-                                [wallets[cur.address].coin.ticker]: acc[wallets[cur.address].coin.ticker]
-                                    ? acc[wallets[cur.address].coin.ticker] + cur.current
-                                    : cur.current
-                            }), {})
-                    }),
-                    {}
-                ))
-                .then(sortedBalances => setBalances(sortedBalances))
-        })
+    const goToPool = pool => () => navigation.push('Mining Pool', { name: pool.name, id: pool.id })
 
     return (
-        <>
-        <View style={{ margin: 24 }}>
-            <HashrateHistory />
-        </View>
-            
-            {pools.map(pool => (
-                <TouchableOpacity
-                    key={pool.name}
-                    onPress={() => navigation.navigate('Mining Pool', { id: pool.id, name: pool.name })}
-                >
-                    <TitleText>{pool.name}</TitleText>
-                    <Text>Hashrate: {(hashrates[pool.name] / 1000000000).toFixed(3)} GH/s</Text>
-                    {balances[pool.name] ? Object.keys(balances[pool.name]).map(key => (
-                        <Text key={key}>{key.toUpperCase()}: {balances[pool.name][key].toFixed(6)}</Text>
-                    )) : null}
-                    <Divider />
-                </TouchableOpacity>
-            ))}
-        </>
+        <MiningView alwaysBounceVertical overScrollMode='always'>
+            {hashrateGroup ? (
+                <ChartView>
+                    <HashrateHistory hashrates={getLatestHashrateTotal(hashrateGroup).filter((_, i) => i < 6)} />
+                </ChartView>
+            ) : null}
+
+            {pools && hashrateGroup ? (
+                Object.keys(pools).map(key => (
+                    <PoolButton key={key} onPress={goToPool(pools[key][0].miningPool)}>
+                        <TitleView>
+                            <TitleText>{pools[key][0].miningPool.name}</TitleText>
+                            <HashrateText>{readableHashrate(getPoolTotal(hashrateGroup, workers)[key].average)}</HashrateText>
+                        </TitleView>
+                        <CoinView>
+                            {pools[key].map(balance => 
+                                <Icon key={balance.id} source={icons[balance.ticker]} />
+                            )}
+                        </CoinView>
+                    </PoolButton>
+                ))) : null}
+        </MiningView>
     )
 }
 
-const MiningView = styled.View`
-    margin: 24px;
+const MiningView = styled.ScrollView`
+    /* margin: 24px 0; */
 `
 
-const ItemView = styled.View`
-    margin: 0 24px;
+const ChartView = styled.View`
+    margin-top: 36px;
+    margin-bottom: 4px;
+`
+
+const PoolButton = styled(Button)`
+    margin: 4px 24px;
+    padding: 8px;
+    background-color: orange;
+    border-radius: 10px;
+`
+
+const TitleView = styled.View`
+    flex-direction: row;
+    align-items: flex-end;
 `
 
 const TitleText = styled.Text`
     font-size: 24px;
+    color: white;
 `
 
-const ValueText = styled.Text`
+const CoinView = styled.View`
+    flex-direction: row;
+`
+
+const HashrateText = styled.Text`
+    margin-left: 10px;
+
     font-size: 18px;
+    color: white;
+`
+
+const Icon = styled.Image`
+    width: 12px;
+    height: 12px;
+    margin-right: 4px;
 `
 
 const Divider = styled.View`

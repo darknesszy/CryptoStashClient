@@ -13,30 +13,34 @@ export default UserProvider = props => {
         issuer: config.ID_URL,
         clientId: 'cryptostashclient',
         redirectUrl: 'com.cryptostashclient.auth:/oauth',
-        scopes: ['openid', 'profile', 'offline_access'],
+        scopes: ['offline_access', 'openid', 'profile', 'enumerate'],
         // dangerouslyAllowInsecureHttpRequests: true,
     }
 
     const signin = () => redirectToLogin()
         .then(({ accessToken }) => accessToken && getUserInfo(accessToken))
 
-    const signout = () => Linking.openURL(`${config.ID_URL}/account/logout`)
-        .then(isOpened => {
-            if (isOpened) {
-                const linkingSub = Linking.addEventListener('url', ({ url }) => {
-                    if(url == 'com.cryptostashclient:/logout/success') {
-                        console.log('Logout complete')
-                        cleanup()
-                    }
-                })
-                const appStateSub = AppState.addEventListener("change", nextAppState => {
-                    if (nextAppState == 'active') {
-                        appStateSub.remove()
-                        linkingSub.remove()
-                    }
-                })
-            }
-        })
+    const signout = () => {
+        console.log(tokenStore)
+        console.log(info)
+    }
+    // const signout = () => Linking.openURL(`${config.ID_URL}/account/logout`)
+    //     .then(isOpened => {
+    //         if (isOpened) {
+    //             const linkingSub = Linking.addEventListener('url', ({ url }) => {
+    //                 if(url == 'com.cryptostashclient:/logout/success') {
+    //                     console.log('Logout complete')
+    //                     cleanup()
+    //                 }
+    //             })
+    //             const appStateSub = AppState.addEventListener("change", nextAppState => {
+    //                 if (nextAppState == 'active') {
+    //                     appStateSub.remove()
+    //                     linkingSub.remove()
+    //                 }
+    //             })
+    //         }
+    //     })
 
     const cleanup = () => revoke(authConfig, {
         tokenToRevoke: tokenStore.refreshToken,
@@ -86,6 +90,7 @@ const getUserInfo = accessToken => {
 return (
     <UserContext.Provider value={{
         ...info,
+        token: tokenStore && tokenStore.accessToken ? `bearer ${tokenStore.accessToken}` : undefined,
         signin,
         signout,
         getUserInfo
