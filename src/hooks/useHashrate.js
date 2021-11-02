@@ -1,12 +1,22 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { groupBy } from 'lodash'
 import useAuth from './useAuth'
 
 export default useHashrate = () => {
-    const { get } = useAuth()
+    const { isSignedIn, get } = useAuth()
     const [workers, setWorkers] = useState()
     // Group of hashrate list paired to worker id.
     const [hashrateGroup, setHashrateGroup] = useState()
+
+    useEffect(() => {
+        if(isSignedIn) {
+            workers || getWorkers()
+            hashrateGroup || getHashrates()
+        } else {
+            setWorkers(null)
+            setHashrateGroup(null)
+        }
+    }, [isSignedIn])
 
     const getWorkers = () => get('Workers')
     .then(res => {

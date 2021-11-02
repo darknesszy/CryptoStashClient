@@ -1,12 +1,20 @@
 import { groupBy } from 'lodash'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import useAuth from './useAuth'
 import useWallet from './useWallet'
 
 export default usePool = () => {
-    const { get } = useAuth()
+    const { isSignedIn, get, del } = useAuth()
     const { wallets, getWallets } = useWallet()
     const [pools, setPools] = useState()
+
+    useEffect(() => {
+        if(isSignedIn) {
+            pools || getPools()
+        } else {
+            setPools(null)
+        }
+    }, [isSignedIn])
 
     // Fetch wallet list and pool balance list.
     const getPools = () => Promise.all([
@@ -28,8 +36,12 @@ export default usePool = () => {
             return res
         })
 
+    const removeAccount = (id) => Promise.resolve()
+        .then(() => del(`poolbalances/${id}`))
+
     return {
         pools,
-        getPools
+        getPools,
+        removeAccount
     }
 }

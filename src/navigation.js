@@ -6,6 +6,9 @@ import { createDrawerNavigator } from '@react-navigation/drawer'
 import { TouchableHighlight } from 'react-native-gesture-handler'
 import { NavigationContainer } from '@react-navigation/native'
 
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { faCoffee, faExchangeAlt, faWallet, faBars } from '@fortawesome/free-solid-svg-icons'
+
 import HomeScreen from './screens/HomeScreen'
 import MiningScreen from './screens/MiningScreen'
 import PoolScreen from './screens/PoolScreen'
@@ -13,8 +16,8 @@ import WorkerScreen from './screens/WorkerScreen'
 import FinanceScreen from './screens/FinanceScreen'
 import PortfolioScreen from './screens/PortfolioScreen'
 import DrawerScreen from './screens/DrawerScreen'
-import AuthScreen from './screens/AuthScreen'
-import TestScreen from './screens/TestScreen'
+import PoolAccountScreen from './screens/PoolAccountScreen'
+import Button from './components/Button'
 
 const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
@@ -24,13 +27,18 @@ const MiningStack = createNativeStackNavigator()
 const FinanceStack = createNativeStackNavigator()
 const PortfolioStack = createNativeStackNavigator()
 
+const DrawerButton = ({ nav }) => (
+    <Button onPress={() => nav.openDrawer()}>
+        <FontAwesomeIcon icon={faBars} size={24} />
+    </Button>
+)
+
 const HomeStackScreen = () => (
     <HomeStack.Navigator>
         <HomeStack.Screen
             name="Home"
             component={HomeScreen}
         />
-        <HomeStack.Screen name="Test" component={TestScreen} />
     </HomeStack.Navigator>
 )
 
@@ -40,15 +48,24 @@ const MiningStackScreen = () => (
             name="Mining Dashboard"
             component={MiningScreen}
             options={({ navigation }) => ({
-                headerLeft: () => (
-                    <TouchableHighlight onPress={() => navigation.openDrawer()}>
-                        <Text>三</Text>
-                    </TouchableHighlight>
-                ),
+                headerLeft: () => <DrawerButton nav={navigation} />,
             })}
         />
-        <MiningStack.Screen name="Mining Pool" component={PoolScreen} options={({ route }) => ({ title: route.params.name })} />
-        <MiningStack.Screen name="Worker" component={WorkerScreen} options={({ route }) => ({ title: route.params.name })} />
+        <MiningStack.Screen 
+            name="Mining Pool" 
+            component={PoolScreen} 
+            options={({ route }) => ({ title: route.params.name })} 
+        />
+        <MiningStack.Screen 
+            name="Worker" 
+            component={WorkerScreen} 
+            options={({ route }) => ({ title: route.params.name })}
+        />
+        <MiningStack.Screen 
+            name="Pool Accounts" 
+            component={PoolAccountScreen} 
+            options={({ route }) => ({ title: `${route.params.name} Accounts` })}
+        />
     </MiningStack.Navigator>
 )
 
@@ -58,11 +75,7 @@ const FinanceStackScreen = () => (
             name="Financial Services"
             component={FinanceScreen}
             options={({ navigation }) => ({
-                headerLeft: () => (
-                    <TouchableHighlight onPress={() => navigation.openDrawer()}>
-                        <Text>三</Text>
-                    </TouchableHighlight>
-                ),
+                headerLeft: () => <DrawerButton nav={navigation} />,
             })}
         />
     </FinanceStack.Navigator>
@@ -74,23 +87,37 @@ const PortfolioStackScreen = () => (
             name="Your Portfolio"
             component={PortfolioScreen}
             options={({ navigation }) => ({
-                headerLeft: () => (
-                    <TouchableHighlight onPress={() => navigation.openDrawer()}>
-                        <Text>三</Text>
-                    </TouchableHighlight>
-                ),
+                headerLeft: () => <DrawerButton nav={navigation} />,
             })}
         />
     </PortfolioStack.Navigator>
 )
 
+const TabIcons = {
+    'Mining': faCoffee,
+    'Finance': faExchangeAlt,
+    'Wallet': faWallet
+}
+
 const TabNavigator = () => (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
+    <Tab.Navigator 
+        screenOptions={({ route }) => ({ 
+            headerShown: false,
+            tabBarIcon: ({ focused }) => (
+                <FontAwesomeIcon 
+                    icon={TabIcons[route.name]}
+                    color={focused ? 'orange' : 'lightgrey'}
+                    size={24}
+                />
+            ),
+            tabBarActiveTintColor: 'orange',
+        })}
+    >
         {/* <Tab.Screen name="Home Stack" component={HomeStackScreen} /> */}
         {/* <Tab.Screen name="Test" component={DrawerScreen} /> */}
-        <Tab.Screen name="Mining Stack" component={MiningStackScreen} />
-        <Tab.Screen name="Finance Stack" component={FinanceStackScreen} />
-        <Tab.Screen name="Wallet Stack" component={PortfolioStackScreen} />
+        <Tab.Screen name="Mining" component={MiningStackScreen} />
+        <Tab.Screen name="Finance" component={FinanceStackScreen} />
+        <Tab.Screen name="Wallet" component={PortfolioStackScreen} />
     </Tab.Navigator>
 )
 
