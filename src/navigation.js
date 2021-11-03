@@ -7,7 +7,7 @@ import { TouchableHighlight } from 'react-native-gesture-handler'
 import { NavigationContainer } from '@react-navigation/native'
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faCoffee, faExchangeAlt, faWallet, faBars } from '@fortawesome/free-solid-svg-icons'
+import { faCoffee, faExchangeAlt, faWallet, faBars, faPlus } from '@fortawesome/free-solid-svg-icons'
 
 import HomeScreen from './screens/HomeScreen'
 import MiningScreen from './screens/MiningScreen'
@@ -18,6 +18,7 @@ import PortfolioScreen from './screens/PortfolioScreen'
 import DrawerScreen from './screens/DrawerScreen'
 import PoolAccountScreen from './screens/PoolAccountScreen'
 import Button from './components/Button'
+import PoolAccountAddScreen from './screens/PoolAccountAddScreen'
 
 const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
@@ -30,6 +31,12 @@ const PortfolioStack = createNativeStackNavigator()
 const DrawerButton = ({ nav }) => (
     <Button onPress={() => nav.openDrawer()}>
         <FontAwesomeIcon icon={faBars} size={24} />
+    </Button>
+)
+
+const HeaderBtn = ({ onPress, icon }) => (
+    <Button onPress={onPress}>
+        <FontAwesomeIcon icon={icon} size={20} />
     </Button>
 )
 
@@ -48,7 +55,13 @@ const MiningStackScreen = () => (
             name="Mining Dashboard"
             component={MiningScreen}
             options={({ navigation }) => ({
-                headerLeft: () => <DrawerButton nav={navigation} />,
+                headerLeft: () => (
+                    <HeaderBtn 
+                        onPress={() => navigation.openDrawer()} 
+                        icon={faBars}
+                    />
+                )
+                // headerLeft: () => <DrawerButton nav={navigation} />,
             })}
         />
         <MiningStack.Screen 
@@ -64,7 +77,19 @@ const MiningStackScreen = () => (
         <MiningStack.Screen 
             name="Pool Accounts" 
             component={PoolAccountScreen} 
-            options={({ route }) => ({ title: `${route.params.name} Accounts` })}
+            options={({ route, navigation }) => ({ 
+                title: `${route.params.name} Accounts`,
+                headerRight: () => (
+                    <HeaderBtn 
+                        onPress={() => navigation.push('New Account', route.params)} 
+                        icon={faPlus}
+                    />
+                )
+            })}
+        />
+        <MiningStack.Screen 
+            name="New Account" 
+            component={PoolAccountAddScreen} 
         />
     </MiningStack.Navigator>
 )

@@ -79,14 +79,17 @@ const redirectToLogin = () => authorize(authConfig)
 
 const refreshToken = () => Promise.resolve()
     .then(() => Keychain.getInternetCredentials(config.ID_URL))
-    .then(res => res ? { refreshToken: res.password } : redirectToLogin())
-    .then(({ refreshToken }) => refresh(authConfig, { refreshToken }))
-    .then(
-        res => console.log('@REFRESH', res),
-        err => {
-            console.log('ERROR @REFRESH', err)
-            // return cleanup()
-        }
+    .then(res => res 
+        ? Promise.resolve({ refreshToken: res.password })
+            .then(({ refreshToken }) => refresh(authConfig, { refreshToken }))
+            .then(
+                res => console.log('@REFRESH', res),
+                err => {
+                    console.log('ERROR @REFRESH', err)
+                    // return cleanup()
+                }
+            )
+        : redirectToLogin()
     )
 
 const getUserInfo = accessToken => Promise.resolve()

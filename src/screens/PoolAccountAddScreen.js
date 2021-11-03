@@ -1,30 +1,47 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
+import { Dimensions } from 'react-native'
+import { useForm, Controller } from 'react-hook-form'
 import styled from 'styled-components/native'
 import Input from '../components/Input'
 import Button from '../components/Button'
-import { Dimensions } from 'react-native'
 
-export default PoolAccountAddScreen = () => {
+export default PoolAccountAddScreen = ({ route, navigation }) => {
+    const { id, name } = route.params
     const inputRef = useRef(null)
+    const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm()
+
+    useEffect(() => {
+        return navigation.addListener('focus', () => inputRef && inputRef.current.focus())
+    }, [navigation])
+
+    const onSubmit = data => Promise.resolve()
+        .then(() => console.log(`Posted new account ${data['accountLogin']} to server...`))
+        .then(() => navigation.goBack())
 
     return (
-        <PoolAccountAddView behavior={Platform.OS === "ios" ? "padding" : "padding"}>
+        <PoolAccountAddView behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}>
             <FormView>
-                <LabelText>Username</LabelText>
-                <InfoInput
-                    ref={inputRef}
-                    // autoFocus={true}
-                    placeholder="Example: Michael..."
-                    textContentType="username"
+                <LabelText>Account Login</LabelText>
+                <Controller
+                    control={control}
+                    rules={{
+                        required: true,
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <InfoInput
+                            ref={inputRef}
+                            autoFocus={true}
+                            value={value}
+                            placeholder='usually the wallet address'
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                        />
+                    )}
+                    name='accountLogin'
                 />
-                <LabelText style={{ marginTop: 12 }}>Password</LabelText>
-                <InfoInput
-                    placeholder="Enter password here..."
-                    textContentType="password"
-                    secureTextEntry
-                />
-                <SubmitButton>
-                    <ButtonText>Sign In</ButtonText>
+                {errors.firstName && <ErrorText>This is required.</ErrorText>}
+                <SubmitButton disabled={isSubmitting} onPress={handleSubmit(onSubmit)}>
+                    <ButtonText>Add Account</ButtonText>
                 </SubmitButton>
             </FormView>
         </PoolAccountAddView>
@@ -32,9 +49,8 @@ export default PoolAccountAddScreen = () => {
 }
 
 const PoolAccountAddView = styled.KeyboardAvoidingView`
+    margin-top: 24px;
     height: ${Dimensions.get('screen').height}px;
-
-    justify-content: center;
     align-items: center;
 `
 
@@ -49,6 +65,10 @@ const InfoInput = styled(Input)`
 
 const LabelText = styled.Text`
     padding: 0 5px;
+`
+
+const ErrorText = styled.Text`
+
 `
 
 const SubmitButton = styled(Button)`
