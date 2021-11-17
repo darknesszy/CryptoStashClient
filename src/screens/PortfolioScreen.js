@@ -9,8 +9,8 @@ export default ({ navigation }) => {
 
     useEffect(() => {
         const sub = navigation.addListener('focus', () => {
-            getList()
-            fetchCoins()
+            // getList()
+            // fetchCoins()
         })
         return sub
     }, [navigation])

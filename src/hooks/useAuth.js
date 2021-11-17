@@ -33,19 +33,25 @@ export default useAuth = () => {
                 }
             )
         )
-        .then(
-            res => {
-                if(res.status == 200) {
-                    return res.json()
-                } else if(res.status == 401) {
-                    return refreshToken()
-                } else {
-                    console.log(res.status || 'fetch failed')
-                    throw 'cancel'
-                }
-            },
-            err => console.log(err),
+        .then(handleResponse, err => console.log(err))
+
+    const post = (route, body, ...params) => Promise.resolve()
+    .then(() => getToken())
+    .then(res => {
+        console.log(body.miningPool.currencies)
+        return res
+    })
+    .then(accessToken => accessToken
+        && fetch(
+            `${Config.API_URL}/${route}${new URLSearchParams(params)}`, 
+            {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            }
         )
+    )
+    .then(handleResponse, err => console.log(err))
 
     const del = (route, ...params) => Promise.resolve()
         .then(() => getToken())
@@ -58,23 +64,23 @@ export default useAuth = () => {
                 }
             )
         )
-        .then(
-            res => {
-                if(res.status == 200) {
-                    return res.json()
-                } else if(res.status == 401) {
-                    return refreshToken()
-                } else {
-                    console.log(res.status || 'fetch failed')
-                    throw 'cancel'
-                }
-            },
-            err => console.log(err),
-        )
+        .then(handleResponse, err => console.log(err))
+
+    const handleResponse = res => {
+        if(res.status == 200 || res.status == 201) {
+            return res.json()
+        } else if(res.status == 401) {
+            return refreshToken()
+        } else {
+            console.log(res.status || 'fetch failed')
+            throw 'cancel'
+        }
+    }
 
     return {
         isSignedIn,
         get,
+        post,
         del,
         pubGet
     }

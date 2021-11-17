@@ -11,12 +11,12 @@ import { faCogs } from '@fortawesome/free-solid-svg-icons'
 export default ({ route, navigation }) => {
     const { id, name } = route.params
     const { hashrateGroup, workers, getHashrates, readableHashrate } = useHashrate()
-    const { getPools } = usePool()
+    // const { getPools } = usePool()
 
     useEffect(() => {
         const unsub = navigation.addListener('focus', () => {
-            getHashrates()
-            getPools()
+            // getHashrates()
+            // getPools()
         })
         return unsub
     }, [navigation])

@@ -1,27 +1,31 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useContext, useEffect, useRef } from 'react'
 import { Dimensions } from 'react-native'
 import { useForm, Controller } from 'react-hook-form'
 import styled from 'styled-components/native'
 import Input from '../components/Input'
 import Button from '../components/Button'
+import usePool from '../hooks/usePool'
+import { UserContext } from '../components/UserProvider'
 
-export default PoolAccountAddScreen = ({ route, navigation }) => {
-    const { id, name } = route.params
+export default MiningAccountAddScreen = ({ route, navigation }) => {
     const inputRef = useRef(null)
     const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm()
+    const { addAccount } = usePool()
+    const { sub } = useContext(UserContext)
 
     useEffect(() => {
         return navigation.addListener('focus', () => inputRef && inputRef.current.focus())
     }, [navigation])
 
     const onSubmit = data => Promise.resolve()
-        .then(() => console.log(`Posted new account ${data['accountLogin']} to server...`))
+        .then(() => console.log(`Posted new account ${data['identifier']} ${id} to server...`))
+        .then(() => addAccount(id, sub, data['identifier']))
         .then(() => navigation.goBack())
 
     return (
-        <PoolAccountAddView behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}>
+        <MiningAccountAddView behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}>
             <FormView>
-                <LabelText>Account Login</LabelText>
+                <LabelText>Account Identifier</LabelText>
                 <Controller
                     control={control}
                     rules={{
@@ -32,30 +36,30 @@ export default PoolAccountAddScreen = ({ route, navigation }) => {
                             ref={inputRef}
                             autoFocus={true}
                             value={value}
-                            placeholder='usually the wallet address'
+                            placeholder='usually the wallet address...'
                             onBlur={onBlur}
                             onChangeText={onChange}
                         />
                     )}
-                    name='accountLogin'
+                    name='identifier'
                 />
-                {errors.firstName && <ErrorText>This is required.</ErrorText>}
+                {errors.identifier && <ErrorText>This is required.</ErrorText>}
                 <SubmitButton disabled={isSubmitting} onPress={handleSubmit(onSubmit)}>
                     <ButtonText>Add Account</ButtonText>
                 </SubmitButton>
             </FormView>
-        </PoolAccountAddView>
+        </MiningAccountAddView>
     )
 }
 
-const PoolAccountAddView = styled.KeyboardAvoidingView`
-    margin-top: 24px;
+const MiningAccountAddView = styled.KeyboardAvoidingView`
+    margin: 24px;
     height: ${Dimensions.get('screen').height}px;
     align-items: center;
 `
 
 const FormView = styled.View`
-    width: 65%;
+    width: 100%;
 `
 
 const InfoInput = styled(Input)`
@@ -84,11 +88,4 @@ const SubmitButton = styled(Button)`
 const ButtonText = styled.Text`
     color: white;
     margin: 12px;
-`
-
-const CancelButton = styled(Button)`
-    position: absolute;
-    right: 24px;
-    top: 24px;
-    font-size: 120px;
 `

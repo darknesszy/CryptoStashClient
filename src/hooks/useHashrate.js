@@ -8,15 +8,15 @@ export default useHashrate = () => {
     // Group of hashrate list paired to worker id.
     const [hashrateGroup, setHashrateGroup] = useState()
 
-    useEffect(() => {
-        if(isSignedIn) {
-            workers || getWorkers()
-            hashrateGroup || getHashrates()
-        } else {
-            setWorkers(null)
-            setHashrateGroup(null)
-        }
-    }, [isSignedIn])
+    // useEffect(() => {
+    //     if(isSignedIn) {
+    //         workers || getWorkers()
+    //         hashrateGroup || getHashrates()
+    //     } else {
+    //         setWorkers(null)
+    //         setHashrateGroup(null)
+    //     }
+    // }, [isSignedIn])
 
     const getWorkers = () => get('Workers')
     .then(res => {

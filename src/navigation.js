@@ -16,9 +16,10 @@ import WorkerScreen from './screens/WorkerScreen'
 import FinanceScreen from './screens/FinanceScreen'
 import PortfolioScreen from './screens/PortfolioScreen'
 import DrawerScreen from './screens/DrawerScreen'
-import PoolAccountScreen from './screens/PoolAccountScreen'
+import MiningAccountScreen from './screens/MiningAccountScreen'
 import Button from './components/Button'
-import PoolAccountAddScreen from './screens/PoolAccountAddScreen'
+import MiningAccountAddScreen from './screens/MiningAccountAddScreen'
+import MiningProvider from './components/MiningProvider'
 
 const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
@@ -43,55 +44,62 @@ const HeaderBtn = ({ onPress, icon }) => (
 const HomeStackScreen = () => (
     <HomeStack.Navigator>
         <HomeStack.Screen
-            name="Home"
+            name="Overview"
             component={HomeScreen}
         />
     </HomeStack.Navigator>
 )
 
 const MiningStackScreen = () => (
-    <MiningStack.Navigator>
-        <MiningStack.Screen
-            name="Mining Dashboard"
-            component={MiningScreen}
-            options={({ navigation }) => ({
-                headerLeft: () => (
-                    <HeaderBtn 
-                        onPress={() => navigation.openDrawer()} 
-                        icon={faBars}
-                    />
-                )
-                // headerLeft: () => <DrawerButton nav={navigation} />,
-            })}
-        />
-        <MiningStack.Screen 
-            name="Mining Pool" 
-            component={PoolScreen} 
-            options={({ route }) => ({ title: route.params.name })} 
-        />
-        <MiningStack.Screen 
-            name="Worker" 
-            component={WorkerScreen} 
-            options={({ route }) => ({ title: route.params.name })}
-        />
-        <MiningStack.Screen 
-            name="Pool Accounts" 
-            component={PoolAccountScreen} 
-            options={({ route, navigation }) => ({ 
-                title: `${route.params.name} Accounts`,
-                headerRight: () => (
-                    <HeaderBtn 
-                        onPress={() => navigation.push('New Account', route.params)} 
-                        icon={faPlus}
-                    />
-                )
-            })}
-        />
-        <MiningStack.Screen 
-            name="New Account" 
-            component={PoolAccountAddScreen} 
-        />
-    </MiningStack.Navigator>
+    <MiningProvider>
+        <MiningStack.Navigator>
+            <MiningStack.Screen
+                name="Mining Dashboard"
+                component={MiningScreen}
+                options={({ navigation }) => ({
+                    headerLeft: () => (
+                        <HeaderBtn
+                            onPress={() => navigation.openDrawer()}
+                            icon={faBars}
+                        />
+                    ),
+                    headerRight: () => (
+                        <HeaderBtn
+                            onPress={() => navigation.push('Add Mining Account', route.params)}
+                            icon={faPlus}
+                        />
+                    )
+                })}
+            />
+            <MiningStack.Screen
+                name="Mining Pool"
+                component={PoolScreen}
+                options={({ route }) => ({ title: route.params.name })}
+            />
+            <MiningStack.Screen
+                name="Worker"
+                component={WorkerScreen}
+                options={({ route }) => ({ title: route.params.name })}
+            />
+            <MiningStack.Screen
+                name="Mining Accounts"
+                component={MiningAccountScreen}
+                options={({ route, navigation }) => ({
+                    title: `Mining Accounts`,
+                    headerRight: () => (
+                        <HeaderBtn
+                            onPress={() => navigation.push('Add Mining Account', route.params)}
+                            icon={faPlus}
+                        />
+                    )
+                })}
+            />
+            <MiningStack.Screen
+                name="Add Mining Account"
+                component={MiningAccountAddScreen}
+            />
+        </MiningStack.Navigator>
+    </MiningProvider>
 )
 
 const FinanceStackScreen = () => (
@@ -119,17 +127,18 @@ const PortfolioStackScreen = () => (
 )
 
 const TabIcons = {
+    'Home': faCoffee,
     'Mining': faCoffee,
     'Finance': faExchangeAlt,
     'Wallet': faWallet
 }
 
 const TabNavigator = () => (
-    <Tab.Navigator 
-        screenOptions={({ route }) => ({ 
+    <Tab.Navigator
+        screenOptions={({ route }) => ({
             headerShown: false,
             tabBarIcon: ({ focused }) => (
-                <FontAwesomeIcon 
+                <FontAwesomeIcon
                     icon={TabIcons[route.name]}
                     color={focused ? 'orange' : 'lightgrey'}
                     size={24}
@@ -138,8 +147,7 @@ const TabNavigator = () => (
             tabBarActiveTintColor: 'orange',
         })}
     >
-        {/* <Tab.Screen name="Home Stack" component={HomeStackScreen} /> */}
-        {/* <Tab.Screen name="Test" component={DrawerScreen} /> */}
+        {/* <Tab.Screen name="Home" component={HomeStackScreen} /> */}
         <Tab.Screen name="Mining" component={MiningStackScreen} />
         <Tab.Screen name="Finance" component={FinanceStackScreen} />
         <Tab.Screen name="Wallet" component={PortfolioStackScreen} />
