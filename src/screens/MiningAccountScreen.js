@@ -1,18 +1,16 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { FlatList, Alert, SectionList } from 'react-native'
+import React, { useContext, useEffect } from 'react'
+import { Alert, SectionList } from 'react-native'
 import styled from 'styled-components/native'
 import Button from '../components/Button'
 import { Divider } from '../components/Divider'
-import usePool from '../hooks/usePool'
-import { groupby, capitalize } from 'lodash'
+import { capitalize } from 'lodash'
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons'
 import { MiningContext } from '../components/MiningProvider'
 
 export default MiningAccountScreen = ({ navigation }) => {
-    const { accounts } = useContext(MiningContext)
-    const { removeAccount } = usePool()
+    const { accounts, getAccounts, removeAccount } = useContext(MiningContext)
 
     useEffect(() => {
         const unsub = navigation.addListener('focus', () => {
@@ -22,14 +20,14 @@ export default MiningAccountScreen = ({ navigation }) => {
 
     const handlePress = account => () => Alert.alert(
         'Remove Account?',
-        `Are you sure you want to remove ${account.loginAccount} from ${name} monitoring?`,
+        `Are you sure you want to stop monitoring ${account.identifier}?`,
         [
             {
                 text: "Cancel",
                 onPress: () => console.log("Cancel Pressed"),
                 style: "cancel"
             },
-            { text: "OK", onPress: () => removeAccount(account.id) }
+            { text: "OK", onPress: () => removeAccount(account.id).then(() => getAccounts()) }
         ]
     )
 

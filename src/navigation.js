@@ -1,9 +1,7 @@
 import React from 'react'
-import { Text } from 'react-native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
-import { TouchableHighlight } from 'react-native-gesture-handler'
 import { NavigationContainer } from '@react-navigation/native'
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
@@ -11,7 +9,7 @@ import { faCoffee, faExchangeAlt, faWallet, faBars, faPlus } from '@fortawesome/
 
 import HomeScreen from './screens/HomeScreen'
 import MiningScreen from './screens/MiningScreen'
-import PoolScreen from './screens/PoolScreen'
+import MiningPoolScreen from './screens/MiningPoolScreen'
 import WorkerScreen from './screens/WorkerScreen'
 import FinanceScreen from './screens/FinanceScreen'
 import PortfolioScreen from './screens/PortfolioScreen'
@@ -65,7 +63,7 @@ const MiningStackScreen = () => (
                     ),
                     headerRight: () => (
                         <HeaderBtn
-                            onPress={() => navigation.push('Add Mining Account', route.params)}
+                            onPress={() => navigation.push('Add Mining Account')}
                             icon={faPlus}
                         />
                     )
@@ -73,22 +71,22 @@ const MiningStackScreen = () => (
             />
             <MiningStack.Screen
                 name="Mining Pool"
-                component={PoolScreen}
+                component={MiningPoolScreen}
                 options={({ route }) => ({ title: route.params.name })}
             />
             <MiningStack.Screen
-                name="Worker"
+                name="Mining Worker"
                 component={WorkerScreen}
                 options={({ route }) => ({ title: route.params.name })}
             />
             <MiningStack.Screen
                 name="Mining Accounts"
                 component={MiningAccountScreen}
-                options={({ route, navigation }) => ({
+                options={({ navigation }) => ({
                     title: `Mining Accounts`,
                     headerRight: () => (
                         <HeaderBtn
-                            onPress={() => navigation.push('Add Mining Account', route.params)}
+                            onPress={() => navigation.push('Add Mining Account')}
                             icon={faPlus}
                         />
                     )

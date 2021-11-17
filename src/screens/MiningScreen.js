@@ -11,14 +11,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faCogs } from '@fortawesome/free-solid-svg-icons'
 
 export default ({ navigation }) => {
-    const { accounts, hasPoolAccount } = useContext(MiningContext)
-    const { hashrateGroup, workers, getLatestHashrateTotal, getPoolTotal, readableHashrate } = useHashrate()
-    const { pools, hashRates, getHashRates } = usePool()
+    const { hasPoolAccount } = useContext(MiningContext)
+    const { previewPools, getLatestHashrateTotal, getPoolTotal, readableHashrate } = useHashrate()
+    const { pools } = usePool()
     const [icons] = useState({ ETH: require(`../assets/eth.png`), ZIL: require(`../assets/zil.png`) })
+    const [hashRates, setHashRates] = useState({})
 
     useEffect(() => {
         const unsub = navigation.addListener('focus', () => {
-            getHashRates()
+            previewPools().then(hashRates => setHashRates(hashRates))
         })
         return unsub
     }, [navigation])
@@ -28,9 +29,9 @@ export default ({ navigation }) => {
 
     return (
         <MiningView alwaysBounceVertical overScrollMode='always'>
-            {hashrateGroup ? (
+            {Object.values(hashRates).length > 0 ? (
                 <ChartView>
-                    <HashrateHistory hashrates={getLatestHashrateTotal(hashrateGroup).filter((_, i) => i < 6)} />
+                    <HashrateHistory hashrates={getLatestHashrateTotal(hashRates).filter((_, i) => i < 6)} />
                 </ChartView>
             ) : null}
 
@@ -44,6 +45,8 @@ export default ({ navigation }) => {
                     <MenuText>Manage</MenuText>
                 </MenuButton>
             </MenuView>
+            
+            <Divider />
 
             {Object.values(pools).map(pool => (
                 <PoolButton key={pool.id} active={hasPoolAccount(pool.id)} onPress={goToPool(pool)}>
@@ -78,7 +81,7 @@ const PoolButton = styled(Button)`
     padding: 8px 12px;
 
     background-color: orange;
-    opacity: ${({ active }) => active ? '1' : '.5'};
+    opacity: ${({ active }) => active ? '1' : '.3'};
     border-radius: 10px;
 `
 
@@ -111,7 +114,7 @@ const Icon = styled.Image`
 
 const Divider = styled.View`
     border: .5px solid grey;
-    margin: 24px 4px;
+    margin: 6px 24px;
 `
 
 const MenuView = styled.View`

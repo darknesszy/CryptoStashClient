@@ -2,13 +2,20 @@ import { useState } from 'react'
 import { groupBy } from 'lodash'
 import useAuth from './useAuth'
 
-export default useWorker = () => {
+export default useWorker = accounts => {
     const { get } = useAuth()
-    const [workers, setWorkers] = useState()
+    const [workers, setWorkers] = useState([])
+
+    const load = () => Promise.resolve()
+        .then(() => get('miningworkers'))
+        .then(workers => setWorkers(
+            // Store workers owned by designated mining accounts.
+            workers.filter(worker => accounts.indexOf(worker.miningAccount.id) != -1)
+        ))
 
     const getWorkers = () => get('Workers')
         .then(res => {
-            setWorkers(res)
+            // setWorkers(res)
             return res
         })
 
@@ -18,6 +25,7 @@ export default useWorker = () => {
 
     return {
         workers,
+        load,
         getWorkers,
         getWorkerPools
     }

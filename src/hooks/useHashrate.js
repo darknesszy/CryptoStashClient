@@ -18,6 +18,52 @@ export default useHashrate = () => {
     //     }
     // }, [isSignedIn])
 
+    const previewPools = () => Promise.resolve()
+        .then(() => get('miningworkers'))
+        .then(workers => 
+            Promise.all(
+                workers.map(worker => 
+                    get(`miningworkers/${worker.id}/hashrates`)
+                        .then(hashRates => [worker.id, hashRates])
+                )
+            )
+            .then(workerIdHashRatePairs => 
+                workerIdHashRatePairs.reduce(
+                    (dict, [workerId, hashRates]) => ({ ...dict, [workerId]: hashRates }),
+                    {}
+                )
+            )
+            .then(workerHashRates => 
+                workers.reduce(
+                    (dict, worker) => {
+                        return ({ 
+                            ...dict,
+                            [worker.miningAccount.id]: dict[worker.miningAccount.id]
+                            ? merge(dict[worker.miningAccount.id], workerHashRates[worker.id])
+                            : workerHashRates[worker.id]
+                        })
+                    },
+                    {}
+                )
+            )
+        )
+
+    const previewWorkers = workers => Promise.resolve()
+        .then(() =>
+            Promise.all(
+                workers.map(worker => 
+                    get(`miningworkers/${worker.id}/hashrates`)
+                        .then(hashRates => [worker.id, hashRates])
+                )
+            )
+            .then(workerIdHashRatePairs => 
+                workerIdHashRatePairs.reduce(
+                    (dict, [workerId, hashRates]) => ({ ...dict, [workerId]: hashRates }),
+                    {}
+                )
+            )
+        )
+
     const getWorkers = () => get('Workers')
     .then(res => {
         setWorkers(res)
@@ -86,6 +132,8 @@ export default useHashrate = () => {
         getHashrates,
         getLatestHashrateTotal,
         getPoolTotal,
-        readableHashrate
+        readableHashrate,
+        previewPools,
+        previewWorkers
     }
 }

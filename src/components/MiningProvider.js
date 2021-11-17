@@ -23,9 +23,17 @@ export default MiningProvider = props => {
     const hasPoolAccount = poolId => Object.values(accounts)
         .filter(account => account.miningPool.id == poolId).length != 0
 
+    const addAccount = (poolId, owner, identifier) => Promise.resolve()
+        .then(() => post(`miningaccounts`, { identifier, owner, miningPool: pools[poolId] }))
+
+    const removeAccount = id => Promise.resolve()
+        .then(() => del(`miningaccounts/${id}`))
+
     return (
         <MiningContext.Provider value={{
             load,
+            addAccount,
+            removeAccount,
             accounts,
             hasPoolAccount
         }}>

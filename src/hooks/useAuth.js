@@ -67,7 +67,7 @@ export default useAuth = () => {
         .then(handleResponse, err => console.log(err))
 
     const handleResponse = res => {
-        if(res.status == 200 || res.status == 201) {
+        if(res.status >= 200 && res.status < 300) {
             return res.json()
         } else if(res.status == 401) {
             return refreshToken()
