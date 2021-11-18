@@ -10,7 +10,7 @@ export default useAuth = () => {
         setIsSignedIn(sub != null)
     }, [sub])
 
-    const pubGet = (route, ...params) => fetch(`${Config.API_URL}/${route}${new URLSearchParams(params)}`)
+    const pubGet = (route, params) => fetch(`${Config.API_URL}/${route}${new URLSearchParams(params)}`)
         .then(
             res => {
                 if(res.status == 200) {
@@ -23,7 +23,7 @@ export default useAuth = () => {
             err => console.log(err),
         )
 
-    const get = (route, ...params) => Promise.resolve()
+    const get = (route, params) => Promise.resolve()
         .then(() => getToken())
         .then(accessToken => accessToken 
             && fetch(
@@ -35,29 +35,25 @@ export default useAuth = () => {
         )
         .then(handleResponse, err => console.log(err))
 
-    const post = (route, body, ...params) => Promise.resolve()
-    .then(() => getToken())
-    .then(res => {
-        console.log(body.miningPool.currencies)
-        return res
-    })
-    .then(accessToken => accessToken
-        && fetch(
-            `${Config.API_URL}/${route}${new URLSearchParams(params)}`, 
-            {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            }
+    const post = (route, body) => Promise.resolve()
+        .then(() => getToken())
+        .then(accessToken => accessToken
+            && fetch(
+                `${Config.API_URL}/${route}`, 
+                {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                }
+            )
         )
-    )
-    .then(handleResponse, err => console.log(err))
+        .then(handleResponse, err => console.log(err))
 
-    const del = (route, ...params) => Promise.resolve()
+    const del = (route) => Promise.resolve()
         .then(() => getToken())
         .then(accessToken => accessToken 
             && fetch(
-                `${Config.API_URL}/${route}${new URLSearchParams(params)}`, 
+                `${Config.API_URL}/${route}`, 
                 {
                     method: 'DELETE',
                     headers: { Authorization: `Bearer ${accessToken}` }
@@ -68,7 +64,7 @@ export default useAuth = () => {
 
     const handleResponse = res => {
         if(res.status >= 200 && res.status < 300) {
-            return res.json()
+            return (res.status == 200 || res.status == 201) && res.json()
         } else if(res.status == 401) {
             return refreshToken()
         } else {

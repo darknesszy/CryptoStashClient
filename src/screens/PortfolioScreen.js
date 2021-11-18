@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from 'react'
-import { Text, FlatList, View } from 'react-native'
-import config from 'react-native-config'
+import { Text, useWindowDimensions } from 'react-native'
+import { TabView, SceneMap } from 'react-native-tab-view'
 import styled from 'styled-components/native'
+import InvestmentScreen from './InvestmentScreen'
+import WalletScreen from './WalletScreen'
 
 export default ({ navigation }) => {
-    const [wallets, setWallets] = useState([])
-    const [coins, setCoins] = useState({})
+    const layout = useWindowDimensions()
+
+    const [index, setIndex] = useState(0)
+    const [routes] = useState([
+        { key: 'investment', title: 'Investment' },
+        { key: 'overview', title: 'Overview' },
+        { key: 'wallet', title: 'Wallet' },
+
+    ])
 
     useEffect(() => {
         const sub = navigation.addListener('focus', () => {
@@ -15,45 +24,25 @@ export default ({ navigation }) => {
         return sub
     }, [navigation])
 
-    const getList = () => fetch(`${config.API_URL}/Wallets`)
-        .then(res => res.json())
-        .then(res => setWallets(res))
-        .then(() => console.log('wallet data updated'))
-
-    const fetchCoins = () => fetch(`${config.API_URL}/Coins`)
-        .then(res => res.json())
-        .then(res => res.reduce((acc, cur) => ({ ...acc, [cur.id]: cur }), {}))
-        .then(res => setCoins(res))
-
     return (
-        <FlatList
-            data={wallets}
-            renderItem={({ item }) => (
-                <ItemView key={item.id}>
-                    <TitleText>{item.balance} {item.coin.ticker.toUpperCase()}</TitleText>
-                    <Text style={{ color: 'grey' }}>~{coins && item.coin && item.coin.id && coins[item.coin.id] && coins[item.coin.id].usd ? (coins[item.coin.id].usd * item.balance).toFixed(2): 0} USD</Text>
-                    <SubText>{item.address}</SubText>
-                    <Divider />
-                </ItemView>
-            )}
-            keyExtractor={item => item.id}
+        <TabView
+            navigationState={{ index, routes }}
+            renderScene={SceneMap({
+                overview: () => (
+                    <TabPageView>
+                        <Text>Overview</Text>
+                    </TabPageView>
+                ),
+                wallet: () => <WalletScreen navigation={navigation} />,
+                investment: () => <InvestmentScreen navigation={navigation} />
+            })}
+            onIndexChange={setIndex}
+            initialLayout={{ width: layout.width }}
         />
     )
 }
 
-const ItemView = styled.View`
-    margin: 0 24px;
-`
-
-const TitleText = styled.Text`
-    font-size: 22px;
-`
-
-const SubText = styled.Text`
-    font-size: 8px;
-`
-
-const Divider = styled.View`
-    border: .5px solid grey;
-    margin: 24px 4px;
+const TabPageView = styled.View`
+    /* height: 500px;
+    background-color: black; */
 `

@@ -18,6 +18,8 @@ import MiningAccountScreen from './screens/MiningAccountScreen'
 import Button from './components/Button'
 import MiningAccountAddScreen from './screens/MiningAccountAddScreen'
 import MiningProvider from './components/MiningProvider'
+import WalletAddScreen from './screens/WalletAddScreen'
+import ServiceAddScreen from './screens/ServiceAddScreen'
 
 const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
@@ -26,12 +28,6 @@ const HomeStack = createNativeStackNavigator()
 const MiningStack = createNativeStackNavigator()
 const FinanceStack = createNativeStackNavigator()
 const PortfolioStack = createNativeStackNavigator()
-
-const DrawerButton = ({ nav }) => (
-    <Button onPress={() => nav.openDrawer()}>
-        <FontAwesomeIcon icon={faBars} size={24} />
-    </Button>
-)
 
 const HeaderBtn = ({ onPress, icon }) => (
     <Button onPress={onPress}>
@@ -106,7 +102,7 @@ const FinanceStackScreen = () => (
             name="Financial Services"
             component={FinanceScreen}
             options={({ navigation }) => ({
-                headerLeft: () => <DrawerButton nav={navigation} />,
+                headerLeft: () => <HeaderBtn onPress={() => navigation.openDrawer()} icon={faBars} />
             })}
         />
     </FinanceStack.Navigator>
@@ -115,11 +111,19 @@ const FinanceStackScreen = () => (
 const PortfolioStackScreen = () => (
     <PortfolioStack.Navigator>
         <PortfolioStack.Screen
-            name="Your Portfolio"
+            name="My Portfolio"
             component={PortfolioScreen}
             options={({ navigation }) => ({
-                headerLeft: () => <DrawerButton nav={navigation} />,
+                headerLeft: () => <HeaderBtn onPress={() => navigation.openDrawer()} icon={faBars} />
             })}
+        />
+        <PortfolioStack.Screen
+            name="Add Crypto Wallet"
+            component={WalletAddScreen}
+        />
+        <PortfolioStack.Screen
+            name="Add Service API"
+            component={ServiceAddScreen}
         />
     </PortfolioStack.Navigator>
 )
@@ -128,7 +132,7 @@ const TabIcons = {
     'Home': faCoffee,
     'Mining': faCoffee,
     'Finance': faExchangeAlt,
-    'Wallet': faWallet
+    'Portfolio': faWallet
 }
 
 const TabNavigator = () => (
@@ -146,9 +150,9 @@ const TabNavigator = () => (
         })}
     >
         {/* <Tab.Screen name="Home" component={HomeStackScreen} /> */}
+        <Tab.Screen name="Portfolio" component={PortfolioStackScreen} />
         <Tab.Screen name="Mining" component={MiningStackScreen} />
-        <Tab.Screen name="Finance" component={FinanceStackScreen} />
-        <Tab.Screen name="Wallet" component={PortfolioStackScreen} />
+        {/* <Tab.Screen name="Finance" component={FinanceStackScreen} /> */}
     </Tab.Navigator>
 )
 

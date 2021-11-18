@@ -3,20 +3,7 @@ import { groupBy } from 'lodash'
 import useAuth from './useAuth'
 
 export default useHashrate = () => {
-    const { isSignedIn, get } = useAuth()
-    const [workers, setWorkers] = useState()
-    // Group of hashrate list paired to worker id.
-    const [hashrateGroup, setHashrateGroup] = useState()
-
-    // useEffect(() => {
-    //     if(isSignedIn) {
-    //         workers || getWorkers()
-    //         hashrateGroup || getHashrates()
-    //     } else {
-    //         setWorkers(null)
-    //         setHashrateGroup(null)
-    //     }
-    // }, [isSignedIn])
+    const { get } = useAuth()
 
     const previewPools = () => Promise.resolve()
         .then(() => get('miningworkers'))
@@ -64,30 +51,6 @@ export default useHashrate = () => {
             )
         )
 
-    const getWorkers = () => get('Workers')
-    .then(res => {
-        setWorkers(res)
-        return res
-    })
-
-    const getHashrates = () => Promise.resolve()
-        // Get list of user's workers.
-        .then(() => workers || getWorkers())
-        // Fetch hashrates of each worker.
-        .then(workers => Promise.all(
-            workers.map(worker => 
-                get(`workers/${worker.id}/hashrates`)
-                    // Assign each hashrate list to a worker id key.
-                    .then(hashrates => ({ [worker.id]: hashrates }))
-            )
-        ))
-        .then(workerHashrates => {
-            // Promise all can in a list of key value pair objects, so we join them into a single object.
-            const hashrateGroup = workerHashrates.reduce((acc, hashrates) => ({ ...acc, ...hashrates }), {})
-            setHashrateGroup(hashrateGroup)
-            return hashrateGroup
-        })
-
     const getLatestHashrateTotal = hashrateGroup => Object.values(hashrateGroup)
         .reduce(
             (total, hashrates) => {
@@ -127,9 +90,6 @@ export default useHashrate = () => {
         : `${(hashrate / 1000000).toFixed(2) } Mh/s`
  
     return {
-        workers,
-        hashrateGroup,
-        getHashrates,
         getLatestHashrateTotal,
         getPoolTotal,
         readableHashrate,

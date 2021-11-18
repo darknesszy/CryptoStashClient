@@ -30,11 +30,13 @@
     "react-native-config": "^1.4.5",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-keychain": "^8.0.0",
+    "react-native-pager-view": "^5.4.9",
     "react-native-push-notification": "^8.1.1",
     "react-native-reanimated": "^2.2.3",
     "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "^3.8.0",
     "react-native-svg": "^12.1.1",
+    "react-native-tab-view": "^3.1.1",
     "styled-components": "^5.3.3"
   },
   "devDependencies": {
