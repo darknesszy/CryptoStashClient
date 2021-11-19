@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react'
+import { Text } from 'react-native'
 import styled from 'styled-components/native'
 import Button from '../components/Button'
-import useExchange from '../hooks/useExchange'
 
 export default ({ navigation }) => {
-    const { exchanges } = useExchange()
 
     useEffect(() => {
         const unsub = navigation.addListener('focus', () => {
@@ -14,13 +13,14 @@ export default ({ navigation }) => {
 
     return (
         <FinanceView>
-            {exchanges.map(exchange => (
+            <Text>Finance Screen</Text>
+            {/* {exchanges.map(exchange => (
                 <ExchangeButton key={exchange.id}>
                     <ExchangeView>
                         <Title>{exchange.name}</Title>
                     </ExchangeView>
                 </ExchangeButton>
-            ))}
+            ))} */}
         </FinanceView>
     )
 }

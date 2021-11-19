@@ -8,7 +8,7 @@ import { UserContext } from '../components/UserProvider'
 import { capitalize } from 'lodash'
 import useAuth from '../hooks/useAuth'
 
-export default ServiceAddScreen = ({ navigation }) => {
+export default ServiceApiAddScreen = ({ navigation }) => {
     const { sub } = useContext(UserContext)
     const { get, post } = useAuth()
     const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm()
@@ -47,7 +47,7 @@ export default ServiceAddScreen = ({ navigation }) => {
         .then(() => navigation.goBack())
 
     return (
-        <ServiceAddView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ServiceApiAddView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
             <FormView>
                 <LabelText>Service Type</LabelText>
                 <Controller
@@ -149,11 +149,11 @@ export default ServiceAddScreen = ({ navigation }) => {
                     <ButtonText>Add API</ButtonText>
                 </SubmitButton>
             </FormView>
-        </ServiceAddView>
+        </ServiceApiAddView>
     )
 }
 
-const ServiceAddView = styled.KeyboardAvoidingView`
+const ServiceApiAddView = styled.KeyboardAvoidingView`
     flex: 1;
 `
 

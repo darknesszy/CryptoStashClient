@@ -6,87 +6,90 @@ import { Divider } from '../components/Divider'
 import { capitalize } from 'lodash'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faPlus, faTimesCircle } from '@fortawesome/free-solid-svg-icons'
-import useExchange from '../hooks/useExchange'
+import useExchangeBalance from '../hooks/useExchangeBalance'
+import useCurrency from '../hooks/useCurrency'
 
 export default InvestmentScreen = ({ navigation }) => {
-    const { accounts: exchangeAccounts, previewBalances: getExchangeBalances } = useExchange()
+    const { accounts: exchangeAccounts, previewBalances: getExchangeBalances, getTotals: getExchangeTotals } = useExchangeBalance()
+    const { currencies } = useCurrency()
     const [balances, setBalances] = useState({
         exchange: {}
     })
 
     useEffect(() => {
         const unsub = navigation.addListener('focus', () => {
-            getExchangeBalances(exchangeAccounts)
-                .then(balances => setBalances(p => ({ ...p, exchange: balances })))
+
         })
         return unsub
     }, [navigation])
 
+    useEffect(() => {
+        if(Object.values(exchangeAccounts).length != 0) {
+            getExchangeBalances(exchangeAccounts)
+                .then(balances => getExchangeTotals(exchangeAccounts, balances))
+                .then(exchangeBalances => setBalances(p => ({ ...p, exchange: exchangeBalances })))
+        }
+    }, [exchangeAccounts])
+
     const goToAddService = () => navigation.push('Add Service API')
+    const goToService = (type, service) => navigation.push('Service APIs', { name: service.name, id: service.id, type })
 
-    const handlePress = account => () => Alert.alert(
-        'Remove Account?',
-        `Are you sure you want to stop monitoring ${account.identifier}?`,
-        [
-            {
-                text: "Cancel",
-                onPress: () => console.log("Cancel Pressed"),
-                style: "cancel"
-            },
-            { text: "OK", onPress: () => removeAccount(account.id).then(() => getAccounts()) }
-        ]
-    )
+    const collectExchangeData = (exchangeAccounts, balances) => {
+        exchanges = Object.values(exchangeAccounts)
+            .reduce(
+                (exchanges, account) => ({ 
+                    ...exchanges,
+                    [account.currencyExchange.id]: exchanges[account.currencyExchange.id]
+                        ? exchanges[account.currencyExchange.id]
+                        : account.currencyExchange
+                }),
+                {}
+            )
+        exchangeBalances = balances.exchange
 
-    const collectExchangeAccountData = exchangeAccounts => Object.values(
-        Object.values(exchangeAccounts).reduce(
-            (acc, account) => ({
-                ...acc,
-                [account.currencyExchange.name]: {
-                    title: account.currencyExchange.name,
-                    data: acc[account.currencyExchange.name]
-                    ? [
-                        ...acc[account.currencyExchange.name].data,
-                        { ...account, balances: balances.exchange[account.id] }
-                    ]
-                    : [
-                        { ...account, balances: balances.exchange[account.id] }
-                    ]
-                }
-            }),
-            {}
-        )
-    )
+        return Object.keys(exchangeBalances)
+            .reduce(
+                (acc, exchangeId) => [
+                    ...acc,
+                    {
+                        title: exchanges[exchangeId].name,
+                        type: 'Currency Exchange',
+                        data: Object.keys(exchangeBalances[exchangeId])
+                            .map(currencyId => ({ 
+                                ...currencies[currencyId], 
+                                balances: exchangeBalances[exchangeId][currencyId] 
+                            }))
+                    }
+                ],
+                []
+            )
+    }
 
     return (
         <SectionList
             sections={[].concat(
-                collectExchangeAccountData(exchangeAccounts)
+                collectExchangeData(exchangeAccounts, balances)
             )}
             keyExtractor={(item, index) => item + index}
-            renderItem={({ item: account }) => (
+            renderItem={({ item: currency, section: { type } }) => (
                 <>
-                    <ItemView key={account.id}>
-                        <InfoView>
-                            <DataView>
-                                <Title>{capitalize(account.name)}</Title>
-                                {/* <Subtitle>{wallet.address}</Subtitle> */}
-                            </DataView>
-                            <DataView>
-                                {/* <Title>{wallet.balance || 0}</Title> */}
-                                {/* <Subtitle style={{ color: 'grey' }}>~{coins && item.coin && item.coin.id && coins[item.coin.id] && coins[item.coin.id].usd ? (coins[item.coin.id].usd * item.balance).toFixed(2): 0} USD</Subtitle> */}
-                            </DataView>
-                        </InfoView>
-                        <RemoveButton onPress={handlePress(account)}>
-                            <FontAwesomeIcon icon={faTimesCircle} color={'lightgrey'} size={24} />
-                        </RemoveButton>
-                    </ItemView>
+                    <ItemButton key={currency.id} onPress={() => goToService(type)}>
+                        <DataView>
+                            <Title>{capitalize(currency.name)}</Title>
+                            {/* <Subtitle>{wallet.address}</Subtitle> */}
+                        </DataView>
+                        <DataView>
+                            <Title>{currency.balances && currency.balances[0].savings || 0}</Title>
+                            {/* <Subtitle style={{ color: 'grey' }}>~{coins && item.coin && item.coin.id && coins[item.coin.id] && coins[item.coin.id].usd ? (coins[item.coin.id].usd * item.balance).toFixed(2): 0} USD</Subtitle> */}
+                        </DataView>
+                    </ItemButton>
                     <Divider />
                 </>
             )}
-            renderSectionHeader={({ section: { title } }) => (
-                <PoolView>
-                    <PoolTitle>{title}</PoolTitle>
-                </PoolView>
+            renderSectionHeader={({ section: { title, type } }) => (
+                <ServiceButton onPress={() => goToService(type)}>
+                    <ServiceTitle>{title}</ServiceTitle>
+                </ServiceButton>
             )}
             ListFooterComponent={() => (
                 <AddButton onPress={goToAddService}>
@@ -102,24 +105,21 @@ export default InvestmentScreen = ({ navigation }) => {
     )
 }
 
-const PoolView = styled.View`
-    margin: 0 24px;
-`
-
-const PoolTitle = styled.Text`
-    font-size: 24px;
-`
-
-const ItemView = styled.View`
+const ServiceButton = styled(Button)`
     margin: 0 24px;
     margin-top: 12px;
-
     flex-direction: row;
+    justify-content: space-between;
     align-items: center;
 `
 
-const InfoView = styled.View`
-    margin-right: 24px;
+const ServiceTitle = styled.Text`
+    font-size: 24px;
+`
+
+const ItemButton = styled(Button)`
+    margin: 0 24px;
+    margin-top: 12px;
 
     flex: 1;
     flex-direction: row;
@@ -155,8 +155,4 @@ const AddButtonText = styled.Text`
 
     font-size: 18px;
     color: grey;
-`
-
-const RemoveButton = styled(Button)`
-
 `

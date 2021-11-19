@@ -19,7 +19,8 @@ import Button from './components/Button'
 import MiningAccountAddScreen from './screens/MiningAccountAddScreen'
 import MiningProvider from './components/MiningProvider'
 import WalletAddScreen from './screens/WalletAddScreen'
-import ServiceAddScreen from './screens/ServiceAddScreen'
+import ServiceApiAddScreen from './screens/ServiceApiAddScreen'
+import ServiceApiScreen from './screens/ServiceApiScreen'
 
 const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
@@ -42,6 +43,18 @@ const HomeStackScreen = () => (
             component={HomeScreen}
         />
     </HomeStack.Navigator>
+)
+
+const FinanceStackScreen = () => (
+    <FinanceStack.Navigator>
+        <FinanceStack.Screen
+            name="Financial Services"
+            component={FinanceScreen}
+            options={({ navigation }) => ({
+                headerLeft: () => <HeaderBtn onPress={() => navigation.openDrawer()} icon={faBars} />
+            })}
+        />
+    </FinanceStack.Navigator>
 )
 
 const MiningStackScreen = () => (
@@ -96,18 +109,6 @@ const MiningStackScreen = () => (
     </MiningProvider>
 )
 
-const FinanceStackScreen = () => (
-    <FinanceStack.Navigator>
-        <FinanceStack.Screen
-            name="Financial Services"
-            component={FinanceScreen}
-            options={({ navigation }) => ({
-                headerLeft: () => <HeaderBtn onPress={() => navigation.openDrawer()} icon={faBars} />
-            })}
-        />
-    </FinanceStack.Navigator>
-)
-
 const PortfolioStackScreen = () => (
     <PortfolioStack.Navigator>
         <PortfolioStack.Screen
@@ -123,7 +124,20 @@ const PortfolioStackScreen = () => (
         />
         <PortfolioStack.Screen
             name="Add Service API"
-            component={ServiceAddScreen}
+            component={ServiceApiAddScreen}
+        />
+        <PortfolioStack.Screen
+            name="Service APIs"
+            component={ServiceApiScreen}
+            options={({ route }) => ({ 
+                title: `${route.params.type} APIs`,
+                headerRight: () => (
+                    <HeaderBtn
+                        onPress={() => navigation.push('Add Service API')}
+                        icon={faPlus}
+                    />
+                )
+            })}
         />
     </PortfolioStack.Navigator>
 )

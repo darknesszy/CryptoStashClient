@@ -10,7 +10,7 @@ export default useAuth = () => {
         setIsSignedIn(sub != null)
     }, [sub])
 
-    const pubGet = (route, params) => fetch(`${Config.API_URL}/${route}${new URLSearchParams(params)}`)
+    const pubGet = (route, params) => fetch(`${Config.API_URL}/${route}?${new URLSearchParams(params)}`)
         .then(
             res => {
                 if(res.status == 200) {
@@ -27,7 +27,7 @@ export default useAuth = () => {
         .then(() => getToken())
         .then(accessToken => accessToken 
             && fetch(
-                `${Config.API_URL}/${route}${new URLSearchParams(params)}`, 
+                `${Config.API_URL}/${route}?${new URLSearchParams(params)}`, 
                 {
                     headers: { Authorization: `Bearer ${accessToken}` }
                 }
