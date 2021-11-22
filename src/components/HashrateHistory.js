@@ -1,9 +1,11 @@
 import React from 'react'
-import { Dimensions } from 'react-native'
+import { useWindowDimensions } from 'react-native'
 import { LineChart } from 'react-native-chart-kit'
 import dayjs from 'dayjs'
 
 export default ({ hashrates }) => {
+    const layout = useWindowDimensions()
+
     return (
         <LineChart
             data={{
@@ -14,7 +16,7 @@ export default ({ hashrates }) => {
                     }
                 ]
             }}
-            width={Dimensions.get("window").width - 48} // from react-native
+            width={layout.width - 48} // from react-native
             height={220}
             yAxisSuffix="Mh/s"
             yAxisInterval={1} // optional, defaults to 1

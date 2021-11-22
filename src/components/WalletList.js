@@ -1,23 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { Alert, FlatList } from 'react-native'
 import styled from 'styled-components/native'
-import Button from '../components/Button'
+import Button from './Button'
 import useAuth from '../hooks/useAuth'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faPlus, faTimesCircle } from '@fortawesome/free-solid-svg-icons'
 import { capitalize } from 'lodash'
 
-export default WalletScreen = ({ navigation }) => {
+export default WalletList = ({ navigation, wallets }) => {
     const { get, del } = useAuth()
-    const [wallets, setWallets] = useState([])
     const [icons] = useState({ ETH: require(`../assets/eth.png`), ZIL: require(`../assets/zil.png`) })
-
-    useEffect(() => {
-        load()
-    }, [])
-
-    const load = () => get('wallets')
-        .then(wallets => setWallets(wallets))
 
     const removeWallet = id => Promise.resolve()
         .then(() => del(`wallets/${id}`))

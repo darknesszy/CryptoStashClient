@@ -1,35 +1,28 @@
 import React, { useEffect, useState } from 'react'
 import { Alert, SectionList } from 'react-native'
 import styled from 'styled-components/native'
-import Button from '../components/Button'
-import { Divider } from '../components/Divider'
+import Button from './Button'
+import { Divider } from './Divider'
 import { capitalize } from 'lodash'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faPlus, faTimesCircle } from '@fortawesome/free-solid-svg-icons'
 import useExchangeBalance from '../hooks/useExchangeBalance'
 import useCurrency from '../hooks/useCurrency'
 
-export default InvestmentScreen = ({ navigation }) => {
-    const { accounts: exchangeAccounts, previewBalances: getExchangeBalances, getTotals: getExchangeTotals } = useExchangeBalance()
-    const { currencies } = useCurrency()
-    const [balances, setBalances] = useState({
-        exchange: {}
-    })
+export default InvestmentList = ({ navigation, exchangeAccounts, currencies, balances }) => {
+    // const { load, accounts: exchangeAccounts, previewBalances: getExchangeBalances, getTotals: getExchangeTotals } = useExchangeBalance()
+    // const { currencies } = useCurrency()
+    // const [balances, setBalances] = useState({
+    //     exchange: {}
+    // })
 
-    useEffect(() => {
-        const unsub = navigation.addListener('focus', () => {
-
-        })
-        return unsub
-    }, [navigation])
-
-    useEffect(() => {
-        if(Object.values(exchangeAccounts).length != 0) {
-            getExchangeBalances(exchangeAccounts)
-                .then(balances => getExchangeTotals(exchangeAccounts, balances))
-                .then(exchangeBalances => setBalances(p => ({ ...p, exchange: exchangeBalances })))
-        }
-    }, [exchangeAccounts])
+    // useEffect(() => {
+    //     if(Object.values(exchangeAccounts).length != 0) {
+    //         getExchangeBalances(exchangeAccounts)
+    //             .then(balances => getExchangeTotals(exchangeAccounts, balances))
+    //             .then(exchangeBalances => setBalances(p => ({ ...p, exchange: exchangeBalances })))
+    //     }
+    // }, [exchangeAccounts])
 
     const goToAddService = () => navigation.push('Add Service API')
     const goToService = (type, service) => navigation.push('Service APIs', { name: service.name, id: service.id, type })
