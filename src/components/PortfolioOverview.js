@@ -24,7 +24,7 @@ export default PortfolioOverview = ({ navigation, wallets, exchangeAccounts, cur
         <PortfolioOverviewView>
             <PortfolioBreakdown />
             {Object.values(summariseWallets(wallets)).map(currencies => (
-                <CurrencyView>
+                <CurrencyView key={currencies.name}>
                     <Title>{currencies.name} - {currencies.balance}</Title>
                 </CurrencyView>
             ))}

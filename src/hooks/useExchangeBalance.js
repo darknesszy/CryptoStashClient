@@ -45,43 +45,43 @@ export default useExchangeBalance = () => {
             {}
         ))
 
-        const getTotals = (accounts, accountBalances) => Object.keys(accountBalances)
-            .reduce(
-                (exchangeBalances, accountId) => {
-                    return ({
-                        ...exchangeBalances,
-                        [accounts[accountId].currencyExchange.id]: exchangeBalances[accounts[accountId].currencyExchange.id]
-                        ? getCurrencyTotals(
-                            exchangeBalances[accounts[accountId].currencyExchange.id],
-                            accountBalances[accountId]
-                        )
-                        : accountBalances[accountId]
-                    })
-                },
-                {}
-            )
+    const getTotals = (accounts, accountBalances) => Object.keys(accountBalances)
+        .reduce(
+            (exchangeBalances, accountId) => {
+                return ({
+                    ...exchangeBalances,
+                    [accounts[accountId].currencyExchange.id]: exchangeBalances[accounts[accountId].currencyExchange.id]
+                    ? getCurrencyTotals(
+                        exchangeBalances[accounts[accountId].currencyExchange.id],
+                        accountBalances[accountId]
+                    )
+                    : accountBalances[accountId]
+                })
+            },
+            {}
+        )
 
-        const getCurrencyTotals = (exchangeBalances, currencyBalances) => Object.keys(currencyBalances)
-            .reduce(
-                (total, currencyId) => ({
-                    ...total,
-                    [currencyId]: exchangeBalances[currencyId]
-                    ? getBalanceTotals(exchangeBalances[currencyId], currencyBalances[currencyId])
-                    : currencyBalances[currencyId]
-                }),
-                exchangeBalances
-            )
-        
-        const getBalanceTotals = (total, balances) => {
-            // Find the longer and shorter list between current and accumulated.
-            const longer = total.length >= balances.length ? total : balances
-            const shorter = total.length < balances.length ? balances : total
+    const getCurrencyTotals = (exchangeBalances, currencyBalances) => Object.keys(currencyBalances)
+        .reduce(
+            (total, currencyId) => ({
+                ...total,
+                [currencyId]: exchangeBalances[currencyId]
+                ? getBalanceTotals(exchangeBalances[currencyId], currencyBalances[currencyId])
+                : currencyBalances[currencyId]
+            }),
+            exchangeBalances
+        )
+    
+    const getBalanceTotals = (total, balances) => {
+        // Find the longer and shorter list between current and accumulated.
+        const longer = total.length >= balances.length ? total : balances
+        const shorter = total.length < balances.length ? balances : total
 
-            return longer.map((el, i) => ({
-                savings: el.savings + (shorter[i] ? shorter[i].savings : 0),
-                created: el.created,
-            }))
-        }
+        return longer.map((el, i) => ({
+            savings: el.savings + (shorter[i] ? shorter[i].savings : 0),
+            created: el.created,
+        }))
+    }
 
     return {
         accounts,

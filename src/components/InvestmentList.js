@@ -64,7 +64,7 @@ export default InvestmentList = ({ navigation, exchangeAccounts, currencies, bal
                 collectExchangeData(exchangeAccounts, balances)
             )}
             keyExtractor={(item, index) => item + index}
-            renderItem={({ item: currency, section: { type } }) => (
+            renderItem={({ item: currency, section: { type } }) => currency.balances.length != 0 ? (
                 <>
                     <ItemButton key={currency.id} onPress={() => goToService(type)}>
                         <DataView>
@@ -72,13 +72,13 @@ export default InvestmentList = ({ navigation, exchangeAccounts, currencies, bal
                             {/* <Subtitle>{wallet.address}</Subtitle> */}
                         </DataView>
                         <DataView>
-                            <Title>{currency.balances && currency.balances[0].savings || 0}</Title>
+                            <Title>{currency.balances[0].savings || 0}</Title>
                             {/* <Subtitle style={{ color: 'grey' }}>~{coins && item.coin && item.coin.id && coins[item.coin.id] && coins[item.coin.id].usd ? (coins[item.coin.id].usd * item.balance).toFixed(2): 0} USD</Subtitle> */}
                         </DataView>
                     </ItemButton>
                     <Divider />
                 </>
-            )}
+            ) : null}
             renderSectionHeader={({ section: { title, type } }) => (
                 <ServiceButton onPress={() => goToService(type)}>
                     <ServiceTitle>{title}</ServiceTitle>

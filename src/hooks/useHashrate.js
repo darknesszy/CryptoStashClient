@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { groupBy } from 'lodash'
+import { groupBy, merge } from 'lodash'
 import useAuth from './useAuth'
 
 export default useHashrate = () => {
