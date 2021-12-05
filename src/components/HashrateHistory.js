@@ -3,16 +3,16 @@ import { useWindowDimensions } from 'react-native'
 import { LineChart } from 'react-native-chart-kit'
 import dayjs from 'dayjs'
 
-export default ({ hashrates }) => {
+export default ({ hashRates }) => {
     const layout = useWindowDimensions()
 
     return (
         <LineChart
             data={{
-                labels: hashrates.map(hashrate => dayjs(hashrate.created).format('HH:mm:ss')),
+                labels: hashRates.map(hashRate => dayjs(hashRate.created).format('HH:mm:ss')),
                 datasets: [
                     {
-                        data: hashrates.map(hashrate => hashrate.average / 1000000)
+                        data: hashRates.map(hashRate => hashRate.average / 1000000)
                     }
                 ]
             }}
@@ -39,6 +39,7 @@ export default ({ hashrates }) => {
                     stroke: "#ffa726"
                 }
             }}
+            fromZero
             bezier
             style={{ 
                 borderRadius: 10,

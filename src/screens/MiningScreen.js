@@ -12,26 +12,35 @@ import { faCogs } from '@fortawesome/free-solid-svg-icons'
 
 export default ({ navigation }) => {
     const { hasPoolAccount } = useContext(MiningContext)
-    const { previewPools, getLatestHashrateTotal, getPoolTotal, readableHashrate } = useHashrate()
+    const { previewPools, mergePoolsHashRate, readableHashrate } = useHashrate()
     const { pools } = usePool()
     const [icons] = useState({ ETH: require(`../assets/eth.png`), ZIL: require(`../assets/zil.png`) })
-    const [hashRates, setHashRates] = useState({})
+    // Pool id mapped to latest 10 combined hashrates
+    const [poolsHashRate, setPoolsHashRate] = useState({})
 
     useEffect(() => {
         const unsub = navigation.addListener('focus', () => {
-            previewPools().then(hashRates => setHashRates(hashRates))
+            previewPools()
+                .then(hashRates => setPoolsHashRate(hashRates))
         })
         return unsub
     }, [navigation])
+
+    const historyHashRates = poolsHashRate =>
+        Array.from(mergePoolsHashRate(poolsHashRate))
+            .reverse()
+            .filter((_, i) => i < 6)
 
     const goToPool = pool => () => navigation.push('Mining Pool', { name: pool.name, id: pool.id })
     const goToAccounts = () => navigation.push('Mining Accounts')
 
     return (
         <MiningView alwaysBounceVertical overScrollMode='always'>
-            {Object.values(hashRates).length > 0 ? (
+            {Object.keys(poolsHashRate).length != 0 ? (
                 <ChartView>
-                    <HashrateHistory hashrates={getLatestHashrateTotal(hashRates).filter((_, i) => i < 6)} />
+                    <HashrateHistory
+                        hashRates={historyHashRates(poolsHashRate)}
+                    />
                 </ChartView>
             ) : null}
 
@@ -52,8 +61,8 @@ export default ({ navigation }) => {
                 <PoolButton key={pool.id} active={hasPoolAccount(pool.id)} onPress={goToPool(pool)}>
                     <PoolInfoView>
                         <Title>{capitalize(pool.name)} Pool</Title>
-                        {hashRates[pool.id] ? (
-                            <HashrateText>{readableHashrate(hashRates[pool.id][0].average)}</HashrateText>
+                        {poolsHashRate[pool.id] ? (
+                            <HashrateText>{readableHashrate(poolsHashRate[pool.id][0].average)}</HashrateText>
                         ) : null}
                     </PoolInfoView>
                     <CurrencyView>
