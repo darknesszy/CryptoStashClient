@@ -1,4 +1,5 @@
 import React from 'react'
+import { capitalize } from 'lodash'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
@@ -21,7 +22,6 @@ import MiningProvider from './components/MiningProvider'
 import WalletAddScreen from './screens/WalletAddScreen'
 import ServiceApiAddScreen from './screens/ServiceApiAddScreen'
 import ServiceApiScreen from './screens/ServiceApiScreen'
-import { capitalize } from 'lodash'
 
 const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()

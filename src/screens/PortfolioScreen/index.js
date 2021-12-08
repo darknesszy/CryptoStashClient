@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { useWindowDimensions } from 'react-native'
 import styled from 'styled-components/native'
 import { TabView, TabBar, SceneMap } from 'react-native-tab-view'
-import InvestmentList from '../components/InvestmentList'
-import PortfolioOverview from '../components/PortfolioOverview'
-import WalletList from '../components/WalletList'
-import useExchangeBalance from '../hooks/useExchangeBalance'
-import useCurrency from '../hooks/useCurrency'
-import useAuth from '../hooks/useAuth'
+import InvestmentList from './InvestmentList'
+import PortfolioOverview from './PortfolioOverview'
+import WalletList from './WalletList'
+import useExchangeBalance from '../../hooks/useExchangeBalance'
+import useCurrency from '../../hooks/useCurrency'
+import useAuth from '../../hooks/useAuth'
 
 export default ({ navigation }) => {
     const layout = useWindowDimensions()
@@ -21,8 +21,8 @@ export default ({ navigation }) => {
     const [index, setIndex] = useState(0)
     const [routes] = useState([
         { key: 'overview', title: 'Overview' },
-        { key: 'wallet', title: 'Wallet' },
-        { key: 'investment', title: 'Investment' },
+        { key: 'cash', title: 'Cash' },
+        { key: 'accounts', title: 'Accounts' },
     ])
 
     const loadWallets = () => get('wallets')
@@ -64,8 +64,8 @@ export default ({ navigation }) => {
                         balances={balances}
                     />
                 ),
-                wallet: () => <WalletList navigation={navigation} wallets={wallets} />,
-                investment: () => (
+                cash: () => <WalletList navigation={navigation} wallets={wallets} />,
+                accounts: () => (
                     <InvestmentList 
                         navigation={navigation}
                         exchangeAccounts={exchangeAccounts}
