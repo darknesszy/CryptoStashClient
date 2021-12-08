@@ -10,7 +10,7 @@ import { faCoffee, faExchangeAlt, faWallet, faBars, faPlus } from '@fortawesome/
 import HomeScreen from './screens/HomeScreen'
 import MiningScreen from './screens/MiningScreen'
 import MiningPoolScreen from './screens/MiningPoolScreen'
-import WorkerScreen from './screens/WorkerScreen'
+import MiningWorkerScreen from './screens/MiningWorkerScreen'
 import FinanceScreen from './screens/FinanceScreen'
 import PortfolioScreen from './screens/PortfolioScreen'
 import DrawerScreen from './screens/DrawerScreen'
@@ -21,6 +21,7 @@ import MiningProvider from './components/MiningProvider'
 import WalletAddScreen from './screens/WalletAddScreen'
 import ServiceApiAddScreen from './screens/ServiceApiAddScreen'
 import ServiceApiScreen from './screens/ServiceApiScreen'
+import { capitalize } from 'lodash'
 
 const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
@@ -81,12 +82,12 @@ const MiningStackScreen = () => (
             <MiningStack.Screen
                 name="Mining Pool"
                 component={MiningPoolScreen}
-                options={({ route }) => ({ title: route.params.name })}
+                options={({ route }) => ({ title: `${capitalize(route.params.name)} Pool` })}
             />
             <MiningStack.Screen
                 name="Mining Worker"
-                component={WorkerScreen}
-                options={({ route }) => ({ title: route.params.name })}
+                component={MiningWorkerScreen}
+                options={({ route }) => ({ title: capitalize(route.params.name) })}
             />
             <MiningStack.Screen
                 name="Mining Accounts"
@@ -164,8 +165,8 @@ const TabNavigator = () => (
         })}
     >
         {/* <Tab.Screen name="Home" component={HomeStackScreen} /> */}
-        <Tab.Screen name="Mining" component={MiningStackScreen} />
         <Tab.Screen name="Portfolio" component={PortfolioStackScreen} />
+        <Tab.Screen name="Mining" component={MiningStackScreen} />
         {/* <Tab.Screen name="Finance" component={FinanceStackScreen} /> */}
     </Tab.Navigator>
 )

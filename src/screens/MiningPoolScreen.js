@@ -8,6 +8,9 @@ import { MiningContext } from '../components/MiningProvider'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faCogs } from '@fortawesome/free-solid-svg-icons'
 import useWorker from '../hooks/useWorker'
+import HashRateCard from '../components/HashRateCard'
+import { capitalize } from 'lodash'
+import { Divider } from '../components/Divider'
 
 export default MiningPoolScreen = ({ route, navigation }) => {
     const { id, name } = route.params
@@ -38,17 +41,31 @@ export default MiningPoolScreen = ({ route, navigation }) => {
         return t
     }
 
-    // const goToWorker = worker => () => navigation.push('Mining Worker', { name: worker.name, id: worker.id })
-    const goToWorker = worker => () => {}
-    const goToAccounts = () => navigation.push('Mining Accounts')
+    const identifierEightValues = identifier =>
+        `...${identifier.slice(identifier.length - 9, identifier.length)}`
 
+    const lastReportedTime = hashRate =>
+        addHours(hashRate.created)
+            .toLocaleString()
+
+    const goToWorker = worker => () => 
+        navigation.push(
+            'Mining Worker',
+            { 
+                name: worker.name,
+                id: worker.id,
+                identifier: worker.miningAccount.identifier
+            }
+        )
+    const goToAccounts = () => navigation.push('Mining Accounts')
+    
     return (
         <MiningPoolView>
             <MenuView>
                 <MenuButton onPress={goToAccounts}>
                     <FontAwesomeIcon 
                         icon={faCogs}
-                        color={'grey'}
+                        color={'orange'}
                         size={24}
                     />
                     <MenuText>Manage</MenuText>
@@ -58,21 +75,27 @@ export default MiningPoolScreen = ({ route, navigation }) => {
             <Divider />
 
             <FlatList
+                style={{ flex: 1 }}
                 data={workers}
                 renderItem={({ item: worker }) => (
-                    <WorkerButton key={worker.id} onPress={goToWorker(worker)}>
-                        <TitleText>{worker.name}</TitleText>
-                        <SubText>{worker.miningAccount.identifier}</SubText>
-                        {hashRates[worker.id] ? (
-                            <>
-                                <Text>current: {readableHashrate(hashRates[worker.id][0].current)}</Text>
-                                <Text>average: {readableHashrate(hashRates[worker.id][0].average)}</Text>
-                                <Text>reported: {readableHashrate(hashRates[worker.id][0].reported)}</Text>
-                                <Text>Last report: {addHours(hashRates[worker.id][0].created).toLocaleString()}</Text>
-                            </>
-                        ) : null}
-                        <Divider />
-                    </WorkerButton>
+                    <HashRateCard
+                        key={worker.id}
+                        onPress={goToWorker(worker)}
+                        active={true}
+                        name={capitalize(worker.name)}
+                        hashRate={hashRates[worker.id] && hashRates[worker.id][0].average}
+                    >
+                        <SubTextView>
+                            <SubText>
+                                Account ends in: {identifierEightValues(worker.miningAccount.identifier)}
+                            </SubText>
+                            {hashRates[worker.id] ? (
+                                <SubText>
+                                    Last reported: {lastReportedTime(hashRates[worker.id][0])}
+                                </SubText>
+                            ):null}
+                        </SubTextView>
+                    </HashRateCard>
                 )}
                 keyExtractor={item => item.id}
             />
@@ -81,11 +104,12 @@ export default MiningPoolScreen = ({ route, navigation }) => {
 }
 
 const MiningPoolView = styled.SafeAreaView`
-
+    height: 100%;
+    padding-top: 12px;
 `
 
 const MenuView = styled.View`
-    margin: 14px 24px 0 20px;
+    margin: 6px 24px;
 
     flex-direction: row;
     justify-content: flex-end;
@@ -95,30 +119,24 @@ const MenuText = styled.Text`
     margin-left: 10px;
 
     font-size: 18px;
-    color: grey;
+    color: black;
 `
 
 const MenuButton = styled(Button)`
     padding: 4px 8px;
 
     flex-direction: row;
-    border: 1px solid grey;
+    border: 1px solid orange;
     border-radius: 5px;
 `
 
-const WorkerButton = styled(Button)`
-    margin: 0 24px;
-`
-
-const TitleText = styled.Text`
-    font-size: 24px;
+const SubTextView = styled.View`
+    flex-direction: row;
+    justify-content: space-between;
 `
 
 const SubText = styled.Text`
-    font-size: 8px;
-`
+    /* margin-left: 8px; */
 
-const Divider = styled.View`
-    border: .5px solid grey;
-    margin: 24px 4px;
+    font-size: 8px;
 `

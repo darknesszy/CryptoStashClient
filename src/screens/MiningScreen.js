@@ -9,6 +9,8 @@ import { MiningContext } from '../components/MiningProvider'
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faCogs } from '@fortawesome/free-solid-svg-icons'
+import HashRateCard from '../components/HashRateCard'
+import { Divider } from '../components/Divider'
 
 export default ({ navigation }) => {
     const { hasPoolAccount } = useContext(MiningContext)
@@ -58,19 +60,19 @@ export default ({ navigation }) => {
             <Divider />
 
             {Object.values(pools).map(pool => (
-                <PoolButton key={pool.id} active={hasPoolAccount(pool.id)} onPress={goToPool(pool)}>
-                    <PoolInfoView>
-                        <Title>{capitalize(pool.name)} Pool</Title>
-                        {poolsHashRate[pool.id] ? (
-                            <HashrateText>{readableHashrate(poolsHashRate[pool.id][0].average)}</HashrateText>
-                        ) : null}
-                    </PoolInfoView>
+                <HashRateCard 
+                    key={pool.id}
+                    active={hasPoolAccount(pool.id)}
+                    onPress={goToPool(pool)}
+                    name={`${capitalize(pool.name)} Pool`}
+                    hashRate={poolsHashRate[pool.id] && poolsHashRate[pool.id][0].average}
+                >
                     <CurrencyView>
                         {pool.currencies.map(currency => 
                             <Icon key={currency.id} source={icons[currency.ticker]} />
                         )}
                     </CurrencyView>
-                </PoolButton>
+                </HashRateCard>
             ))}
         </MiningView>
     )
@@ -85,34 +87,8 @@ const ChartView = styled.View`
     margin-bottom: 4px;
 `
 
-const PoolButton = styled(Button)`
-    margin: 4px 24px;
-    padding: 8px 12px;
-
-    background-color: orange;
-    opacity: ${({ active }) => active ? '1' : '.3'};
-    border-radius: 10px;
-`
-
-const PoolInfoView = styled.View`
-    flex-direction: row;
-    align-items: flex-end;
-`
-
-const Title = styled.Text`
-    font-size: 24px;
-    color: white;
-`
-
 const CurrencyView = styled.View`
     flex-direction: row;
-`
-
-const HashrateText = styled.Text`
-    margin-left: 10px;
-
-    font-size: 18px;
-    color: white;
 `
 
 const Icon = styled.Image`
@@ -121,13 +97,8 @@ const Icon = styled.Image`
     margin-right: 4px;
 `
 
-const Divider = styled.View`
-    border: .5px solid grey;
-    margin: 6px 24px;
-`
-
 const MenuView = styled.View`
-    margin: 6px 24px;
+    margin: 12px 24px 6px 24px;
 
     flex-direction: row;
     justify-content: flex-end;
