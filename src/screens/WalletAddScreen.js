@@ -7,26 +7,26 @@ import Input from '../components/Input'
 import Button from '../components/Button'
 import { UserContext } from '../components/UserProvider'
 import { capitalize } from 'lodash'
-import useCurrency from '../hooks/useCurrency'
 import useAuth from '../hooks/useAuth'
+import useBlockchain from '../hooks/useBlockchain'
 
 export default WalletAddScreen = ({ navigation }) => {
     const inputRef = useRef(null)
     const { sub } = useContext(UserContext)
     const { post } = useAuth()
-    const { currencies } = useCurrency()
+    const { blockchains } = useBlockchain()
     const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm()
 
     useEffect(() => {
         return navigation.addListener('focus', () => inputRef && inputRef.current.focus())
     }, [navigation])
 
-    const addWallet = (owner, address, currencyId) => Promise.resolve()
-        .then(() => post(`wallets`, { address, owner, currency: currencies[currencyId] }))
+    const addWallet = (owner, address, blockchainId) => Promise.resolve()
+        .then(() => post(`wallets`, { address, owner, blockchain: blockchains[blockchainId] }))
 
     const onSubmit = data => Promise.resolve()
-        .then(() => console.log(`Posted new wallet ${data['address']} ${data['currency']} to server...`))
-        .then(() => addWallet(sub, data['address'], data['currency']))
+        .then(() => console.log(`Posting new wallet ${data['address']} to server...`))
+        .then(() => addWallet(sub, data['address'], data['blockchain']))
         .then(() => navigation.goBack())
 
     return (
@@ -51,7 +51,7 @@ export default WalletAddScreen = ({ navigation }) => {
                     name='address'
                 />
                 {errors.identifier && <ErrorText>This is required.</ErrorText>}
-                <LabelText>Currency</LabelText>
+                <LabelText>Blockchain</LabelText>
                 <Controller
                     control={control}
                     rules={{
@@ -62,16 +62,16 @@ export default WalletAddScreen = ({ navigation }) => {
                             selectedValue={value}
                             onValueChange={onChange}
                         >
-                            {Object.values(currencies).map(currency => (
+                            {Object.values(blockchains).map(blockchain => (
                                 <Picker.Item 
-                                    key={currency.id} 
-                                    label={capitalize(currency.name)}
-                                    value={currency.id} 
+                                    key={blockchain.id} 
+                                    label={capitalize(blockchain.name)}
+                                    value={blockchain.id} 
                                 />
                             ))}
                         </CurrencyPicker>
                     )}
-                    name='currency'
+                    name='blockchain'
                 />
                 <SubmitButton disabled={isSubmitting} onPress={handleSubmit(onSubmit)}>
                     <ButtonText>Add Account</ButtonText>

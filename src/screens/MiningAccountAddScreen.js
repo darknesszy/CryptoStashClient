@@ -12,7 +12,7 @@ import { MiningContext } from '../components/MiningProvider'
 
 export default MiningAccountAddScreen = ({ navigation }) => {
     const inputRef = useRef(null)
-    const { getAccounts, addAccount } = useContext(MiningContext)
+    const { load, addAccount } = useContext(MiningContext)
     const { sub } = useContext(UserContext)
 
     const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm()
@@ -23,9 +23,9 @@ export default MiningAccountAddScreen = ({ navigation }) => {
     }, [navigation])
 
     const onSubmit = data => Promise.resolve()
-        .then(() => console.log(`Posted new account ${data['identifier']} ${data['pool']} to server...`))
-        .then(() => addAccount(data['pool'], sub, data['identifier']))
-        .then(() => getAccounts())
+        .then(() => console.log(`Posting new account ${data['identifier']} ${data['pool']} to server...`))
+        .then(() => addAccount(pools[data['pool']], sub, data['identifier']))
+        .then(() => load())
         .then(() => navigation.goBack())
 
     return (

@@ -6,7 +6,7 @@ export const MiningContext = createContext({})
 
 export default MiningProvider = props => {
     const { sub } = useContext(UserContext)
-    const { get } = useAuth()
+    const { get, post, del } = useAuth()
     const [accounts, setAccounts] = useState({})
 
     useEffect(() => {
@@ -23,8 +23,8 @@ export default MiningProvider = props => {
     const hasPoolAccount = poolId => Object.values(accounts)
         .filter(account => account.miningPool.id == poolId).length != 0
 
-    const addAccount = (poolId, owner, identifier) => Promise.resolve()
-        .then(() => post(`miningaccounts`, { identifier, owner, miningPool: pools[poolId] }))
+    const addAccount = (miningPool, owner, identifier) => Promise.resolve()
+        .then(() => post(`miningaccounts`, { miningPool, owner, identifier }))
 
     const removeAccount = id => Promise.resolve()
         .then(() => del(`miningaccounts/${id}`))

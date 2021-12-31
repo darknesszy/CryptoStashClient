@@ -5,90 +5,38 @@ import Button from '../../components/Button'
 import { Divider } from '../../components/Divider'
 import { capitalize } from 'lodash'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faPlus, faTimesCircle } from '@fortawesome/free-solid-svg-icons'
-import useExchangeBalance from '../../hooks/useExchangeBalance'
-import useCurrency from '../../hooks/useCurrency'
+import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import BalanceCard from '../../components/BalanceCard'
 
-export default InvestmentList = ({ navigation, exchangeAccounts, currencies, balances }) => {
+export default InvestmentList = ({ navigation, currencyExchanges = [], exchangeBalances = {}, tokens }) => {
     const [icons] = useState({ ETH: require(`../../assets/eth.png`), ZIL: require(`../../assets/zil.png`) })
-    // const { load, accounts: exchangeAccounts, previewBalances: getExchangeBalances, getTotals: getExchangeTotals } = useExchangeBalance()
-    // const { currencies } = useCurrency()
-    // const [balances, setBalances] = useState({
-    //     exchange: {}
-    // })
-
-    // useEffect(() => {
-    //     if(Object.values(exchangeAccounts).length != 0) {
-    //         getExchangeBalances(exchangeAccounts)
-    //             .then(balances => getExchangeTotals(exchangeAccounts, balances))
-    //             .then(exchangeBalances => setBalances(p => ({ ...p, exchange: exchangeBalances })))
-    //     }
-    // }, [exchangeAccounts])
 
     const goToAddService = () => navigation.push('Add Service API')
     const goToService = type => navigation.push('Service APIs', { type })
 
-    const collectExchangeData = (exchangeAccounts, balances) => {
-        exchanges = Object.values(exchangeAccounts)
-            .reduce(
-                (exchanges, account) => ({
-                    ...exchanges,
-                    [account.currencyExchange.id]: exchanges[account.currencyExchange.id]
-                        ? exchanges[account.currencyExchange.id]
-                        : account.currencyExchange
-                }),
-                {}
-            )
-        exchangeBalances = balances.exchange
-
-        return Object.keys(exchangeBalances)
-            .reduce(
-                (acc, exchangeId) => [
-                    ...acc,
-                    {
-                        title: exchanges[exchangeId].name,
-                        type: 'Currency Exchange',
-                        data: Object.keys(exchangeBalances[exchangeId])
-                            .map(currencyId => ({
-                                ...currencies[currencyId],
-                                balances: exchangeBalances[exchangeId][currencyId]
-                            }))
-                    }
-                ],
-                []
-            )
-    }
+    // Combined token balance of each service type
+    const toSectionData = (currencyExchanges, exchangeBalances) => currencyExchanges
+        .map(currencyExchange => ({
+            title: currencyExchange.name,
+            type: 'Currency Exchange',
+            data: exchangeBalances[currencyExchange.id] ? Object.values(exchangeBalances[currencyExchange.id]) : []
+        }))
 
     return (
         <SectionList
-            sections={[].concat(
-                collectExchangeData(exchangeAccounts, balances)
-            )}
+            sections={toSectionData(currencyExchanges, exchangeBalances)}
             keyExtractor={(item, index) => item + index}
-            renderItem={({ item: currency, section: { type } }) => currency.balances.length != 0 ? (
-                <BalanceCard
-                    key={currency.id}
-                    onPress={() => goToService(type)}
-                    name={capitalize(currency.name)}
-                    ticker={currency.ticker}
-                    balance={currency.balances[0].savings || 0}
-                    icon={icons[currency.ticker]}
-                />
-                // <>
-                //     <ItemButton key={currency.id} onPress={() => goToService(type)}>
-                //         <DataView>
-                //             <Title>{capitalize(currency.name)}</Title>
-                //             {/* <Subtitle>{wallet.address}</Subtitle> */}
-                //         </DataView>
-                //         <DataView>
-                //             <Title>{currency.balances[0].savings || 0}</Title>
-                //             {/* <Subtitle style={{ color: 'grey' }}>~{coins && item.coin && item.coin.id && coins[item.coin.id] && coins[item.coin.id].usd ? (coins[item.coin.id].usd * item.balance).toFixed(2): 0} USD</Subtitle> */}
-                //         </DataView>
-                //     </ItemButton>
-                //     <Divider />
-                // </>
-            ) : null}
+            renderItem={({ item: token, section: { type } }) => (
+<></>
+                // <BalanceCard
+                //     key={token.id}
+                //     onPress={() => goToService(type)}
+                //     name={capitalize(token.name)}
+                //     ticker={token.ticker}
+                //     balance={token.balances[0].savings || 0}
+                //     icon={icons[token.ticker]}
+                // />
+            )}
             renderSectionHeader={({ section: { title, type } }) => (
                 <>
                     <ServiceButton onPress={() => goToService(type)}>

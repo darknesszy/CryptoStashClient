@@ -1,31 +1,50 @@
 import { capitalize } from 'lodash'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components/native'
 import PortfolioBreakdown from '../../components/PortfolioBreakdown'
 
-export default PortfolioOverview = ({ navigation, wallets, exchangeAccounts, currencies, balances }) => {
+export default PortfolioOverview = ({ 
+    wallets = [],
+    walletBalances = {}, 
+    currencyExchanges = [],
+    exchangeBalances = {},
+    blockchains,
+    tokens 
+}) => {
     const lightOrange = 'rgba(255, 165, 0, 0.2)'
-    const summariseWallets = wallets => wallets.reduce(
-        (data, wallet) => ({
-            ...data,
-            [wallet.currency.id]: data[wallet.currency.id]
-                ? {
-                    name: data[wallet.currency.id].name,
-                    ticker: data[wallet.currency.id].ticker,
-                    balance: data[wallet.currency.id].balance + wallet.balance
-                }
-                : {
-                    name: wallet.currency.name,
-                    ticker: wallet.currency.ticker,
-                    balance: wallet.balance || 0
-                }
-        }),
-        {}
+
+    const summariseTokenBalance = () => [].concat(
+        Object.values(walletBalances),
+        Object.values(exchangeBalances)
     )
+        .reduce(
+            (tokenBalances, balances) => Object.keys(balances)
+                .filter(tokenId => blockchains[tokenId])
+                .reduce(
+                    (acc, tokenId) => ({
+                        ...acc,
+                        [tokenId]: acc[tokenId] 
+                            ? {
+                                ...acc[tokenId],
+                                balance: acc[tokenId].balance + balances[tokenId].savings
+                            }
+                            : {
+                                name: blockchains[tokenId].name,
+                                ticker: tokens[tokenId].ticker,
+                                balance: balances[tokenId].savings
+                            }
+                    }),
+                    tokenBalances
+                ),
+            {}
+        )
+
+    const tokenBalance = Object.values(summariseTokenBalance())
 
     return (
         <PortfolioOverviewView>
-            <PortfolioBreakdown />
+            <PortfolioBreakdown portfolio={tokenBalance} />
+            
             <Table>
                 <Row>
                     <Col color="orange">
@@ -38,16 +57,16 @@ export default PortfolioOverview = ({ navigation, wallets, exchangeAccounts, cur
                         <ColText color="white">Total Balance</ColText>
                     </Col>
                 </Row>
-                {Object.values(summariseWallets(wallets)).map((currencies, index) => (
-                    <Row key={currencies.name}>
+                {tokenBalance.map((tokens, index) => (
+                    <Row key={tokens.name}>
                         <Col color={index % 2 == 1 ? lightOrange : null}>
-                            <ColText>{currencies.ticker}</ColText>
+                            <ColText>{tokens.ticker}</ColText>
                         </Col>
                         <Col color={index % 2 == 1 ? lightOrange : null} span={2}>
-                            <ColText>{capitalize(currencies.name)}</ColText>
+                            <ColText>{capitalize(tokens.name)}</ColText>
                         </Col>
                         <Col color={index % 2 == 1 ? lightOrange : null} span={4}>
-                            <ColCurrencyText>{currencies.balance}</ColCurrencyText>
+                            <ColCurrencyText>{tokens.balance}</ColCurrencyText>
                         </Col>
                     </Row>
                 ))}

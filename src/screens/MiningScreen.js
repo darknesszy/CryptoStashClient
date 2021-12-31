@@ -68,8 +68,8 @@ export default ({ navigation }) => {
                     hashRate={poolsHashRate[pool.id] && poolsHashRate[pool.id][0].average}
                 >
                     <CurrencyView>
-                        {pool.currencies.map(currency => 
-                            <Icon key={currency.id} source={icons[currency.ticker]} />
+                        {pool.tokens.map(token => 
+                            <Icon key={token.id} source={icons[token.ticker] || icons['ETH']} />
                         )}
                     </CurrencyView>
                 </HashRateCard>

@@ -6,42 +6,44 @@ import InvestmentList from './InvestmentList'
 import PortfolioOverview from './PortfolioOverview'
 import WalletList from './WalletList'
 import useExchangeBalance from '../../hooks/useExchangeBalance'
-import useCurrency from '../../hooks/useCurrency'
+import useToken from '../../hooks/useToken'
+import useBlockchain from '../../hooks/useBlockchain'
+import useWalletBalance from '../../hooks/useWalletBalance'
 import useAuth from '../../hooks/useAuth'
 
 export default ({ navigation }) => {
     const layout = useWindowDimensions()
     const { get } = useAuth()
-    const [wallets, setWallets] = useState([])
-    const { accounts: exchangeAccounts, previewBalances: getExchangeBalances, getTotals: getExchangeTotals } = useExchangeBalance()
-    const { currencies } = useCurrency()
-    const [balances, setBalances] = useState({
-        exchange: {}
-    })
+
+    const [wallets, setWallets] = useState()
+    const [accounts, setAccounts] = useState()
+    const { balances: walletBalances } = useWalletBalance(wallets)
+    const { balances: exchangeBalances, getCurrencyExchanges } = useExchangeBalance(accounts)
+    const { tokens } = useToken()
+    const { blockchains, getTokenBlockchains } = useBlockchain()
+
     const [index, setIndex] = useState(0)
     const [routes] = useState([
         { key: 'overview', title: 'Overview' },
         { key: 'cash', title: 'Cash' },
-        { key: 'accounts', title: 'Accounts' },
+        { key: 'accounts', title: 'Accounts' }
     ])
 
-    const loadWallets = () => get('wallets')
+    const loadWallets = () => Promise.resolve()
+        .then(() => get('wallets'))
         .then(wallets => setWallets(wallets))
+
+    const loadAccounts = () => Promise.resolve()
+        .then(() => get('exchangeaccounts'))
+        .then(accounts => setAccounts(accounts))
 
     useEffect(() => {
         const sub = navigation.addListener('focus', () => {
             loadWallets()
+            loadAccounts()
         })
         return sub
     }, [navigation])
-
-    useEffect(() => {
-        if(Object.values(exchangeAccounts).length != 0) {
-            getExchangeBalances(exchangeAccounts)
-                .then(balances => getExchangeTotals(exchangeAccounts, balances))
-                .then(exchangeBalances => setBalances(p => ({ ...p, exchange: exchangeBalances })))
-        }
-    }, [exchangeAccounts])
 
     return (
         <TabView
@@ -57,20 +59,29 @@ export default ({ navigation }) => {
             renderScene={SceneMap({
                 overview: () => (
                     <PortfolioOverview 
-                        navigation={navigation}
                         wallets={wallets}
-                        exchangeAccounts={exchangeAccounts}
-                        currencies={currencies}
-                        balances={balances}
+                        walletBalances={walletBalances}
+                        currencyExchanges={getCurrencyExchanges(accounts)}
+                        exchangeBalances={exchangeBalances}
+                        blockchains={getTokenBlockchains(blockchains)}
+                        tokens={tokens}
                     />
                 ),
-                cash: () => <WalletList navigation={navigation} wallets={wallets} />,
+                cash: () => (
+                    <WalletList 
+                        navigation={navigation}
+                        wallets={wallets}
+                        balances={walletBalances}
+                        blockchains={blockchains}
+                        tokens={tokens}
+                    />
+                ),
                 accounts: () => (
                     <InvestmentList 
                         navigation={navigation}
-                        exchangeAccounts={exchangeAccounts}
-                        currencies={currencies}
-                        balances={balances}
+                        tokens={tokens}
+                        currencyExchanges={getCurrencyExchanges(accounts)}
+                        exchangeBalances={exchangeBalances}
                     />
                 )
             })}

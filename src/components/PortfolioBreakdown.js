@@ -1,7 +1,6 @@
 import React from 'react'
 import { useWindowDimensions } from 'react-native'
 import { PieChart } from 'react-native-chart-kit'
-import dayjs from 'dayjs'
 
 export default PortfolioBreakdown = ({ portfolio }) => {
   const layout = useWindowDimensions()
@@ -40,10 +39,17 @@ export default PortfolioBreakdown = ({ portfolio }) => {
   ];
   return (
     <PieChart
-      data={data}
+      data={portfolio
+        .map((data, index) => 
+          ({ 
+            ...data,
+            color: `rgba(${index % 2 == 0 ? `255, 255, 255, ${(5 - index) * .1}` : `0, 0, 0, ${(5 - index) * .1}`})`,
+            legendFontColor: '#7F7F7F'
+          }))
+      }
       width={layout.width - 48}
       height={layout.width / 2}
-      accessor='population'
+      accessor='balance'
       backgroundColor='orange'
       center={[10, 2]}
       chartConfig={{

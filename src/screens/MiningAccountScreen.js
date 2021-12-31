@@ -10,7 +10,7 @@ import { faTimesCircle } from '@fortawesome/free-solid-svg-icons'
 import { MiningContext } from '../components/MiningProvider'
 
 export default MiningAccountScreen = ({ navigation }) => {
-    const { accounts, getAccounts, removeAccount } = useContext(MiningContext)
+    const { accounts, load, removeAccount } = useContext(MiningContext)
 
     useEffect(() => {
         const unsub = navigation.addListener('focus', () => {
@@ -27,7 +27,7 @@ export default MiningAccountScreen = ({ navigation }) => {
                 onPress: () => console.log("Cancel Pressed"),
                 style: "cancel"
             },
-            { text: "OK", onPress: () => removeAccount(account.id).then(() => getAccounts()) }
+            { text: "OK", onPress: () => removeAccount(account.id).then(() => load()) }
         ]
     )
 
