@@ -26,6 +26,7 @@ export default BalanceCard = props => {
             </PrimaryView>
             <SecondaryView>
                 <NameText>{props.name}</NameText>
+                <NameText>{props.usd ? `$${props.usd.toFixed(2)}` : ''}</NameText>
             </SecondaryView>
             {props.children}
         </BalanceCardButton>

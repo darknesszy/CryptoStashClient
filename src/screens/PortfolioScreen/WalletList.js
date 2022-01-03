@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { Alert, SectionList } from 'react-native'
 import styled from 'styled-components/native'
 import Button from '../../components/Button'
@@ -8,8 +8,10 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { capitalize } from 'lodash'
 import BalanceCard from '../../components/BalanceCard'
 import { Divider } from '../../components/Divider'
+import { TokenContext } from '../../components/TokenProvider'
 
 export default WalletList = ({ navigation, wallets = [], balances = {}, blockchains, tokens }) => {
+    const { getStableCoinRate } = useContext(TokenContext)
     const { del } = useAuth()
     const [icons] = useState({ ETH: require(`../../assets/eth.png`), ZIL: require(`../../assets/zil.png`) })
     const [selected, setSelected] = useState(-1)
@@ -64,6 +66,7 @@ export default WalletList = ({ navigation, wallets = [], balances = {}, blockcha
                     name={capitalize(tokens[balance.tokenId].name)}
                     ticker={tokens[balance.tokenId].ticker}
                     balance={balance.savings || 0}
+                    usd={balance.savings && getStableCoinRate({ id: balance.tokenId }) * balance.savings}
                     icon={icons[tokens[balance.tokenId].ticker]}
                 />
             )}

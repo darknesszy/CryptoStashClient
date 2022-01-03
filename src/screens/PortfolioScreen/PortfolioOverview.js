@@ -1,7 +1,8 @@
 import { capitalize } from 'lodash'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useContext } from 'react'
 import styled from 'styled-components/native'
 import PortfolioBreakdown from '../../components/PortfolioBreakdown'
+import { TokenContext } from '../../components/TokenProvider'
 
 export default PortfolioOverview = ({ 
     wallets = [],
@@ -11,6 +12,7 @@ export default PortfolioOverview = ({
     blockchains,
     tokens 
 }) => {
+    const { getStableCoinRate } = useContext(TokenContext)
     const lightOrange = 'rgba(255, 165, 0, 0.2)'
 
     const summariseTokenBalance = () => [].concat(
@@ -26,12 +28,14 @@ export default PortfolioOverview = ({
                         [tokenId]: acc[tokenId] 
                             ? {
                                 ...acc[tokenId],
-                                balance: acc[tokenId].balance + balances[tokenId].savings
+                                balance: acc[tokenId].balance + balances[tokenId].savings,
                             }
                             : {
+                                id: tokenId,
                                 name: blockchains[tokenId].name,
                                 ticker: tokens[tokenId].ticker,
-                                balance: balances[tokenId].savings
+                                value: getStableCoinRate({ id: tokenId }),
+                                balance: balances[tokenId].savings,
                             }
                     }),
                     tokenBalances
@@ -50,23 +54,29 @@ export default PortfolioOverview = ({
                     <Col color="orange">
                         <ColText color="white">Ticker</ColText>
                     </Col>
-                    <Col color="orange" span={2}>
+                    <Col color="orange" span={1.5}>
                         <ColText color="white">Coin Name</ColText>
                     </Col>
-                    <Col color="orange" span={4}>
-                        <ColText color="white">Total Balance</ColText>
+                    <Col color="orange" span={2}>
+                        <ColText color="white">Balance</ColText>
+                    </Col>
+                    <Col color="orange" span={1}>
+                        <ColText color="white">USD Est.</ColText>
                     </Col>
                 </Row>
-                {tokenBalance.map((tokens, index) => (
-                    <Row key={tokens.name}>
+                {tokenBalance.map((token, index) => (
+                    <Row key={token.name}>
                         <Col color={index % 2 == 1 ? lightOrange : null}>
-                            <ColText>{tokens.ticker}</ColText>
+                            <ColText>{token.ticker}</ColText>
+                        </Col>
+                        <Col color={index % 2 == 1 ? lightOrange : null} span={1.5}>
+                            <ColText>{capitalize(token.name)}</ColText>
                         </Col>
                         <Col color={index % 2 == 1 ? lightOrange : null} span={2}>
-                            <ColText>{capitalize(tokens.name)}</ColText>
+                            <ColCurrencyText>{token.balance}</ColCurrencyText>
                         </Col>
-                        <Col color={index % 2 == 1 ? lightOrange : null} span={4}>
-                            <ColCurrencyText>{tokens.balance}</ColCurrencyText>
+                        <Col color={index % 2 == 1 ? lightOrange : null} span={1}>
+                            <ColCurrencyText>{(token.value * token.balance).toFixed(2)}</ColCurrencyText>
                         </Col>
                     </Row>
                 ))}

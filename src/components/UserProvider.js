@@ -131,7 +131,7 @@ export default UserProvider = props => {
                 } else if(res.status == 401) {
                     return refreshToken()
                 } else {
-                    console.log(res.status || 'get user info failed')
+                    console.log(res.status || 'get user info failed', ' user info')
                     throw 'cancel'
                 }
             },

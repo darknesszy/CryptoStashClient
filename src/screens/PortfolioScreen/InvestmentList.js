@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Alert, SectionList } from 'react-native'
 import styled from 'styled-components/native'
 import Button from '../../components/Button'
@@ -7,8 +7,10 @@ import { capitalize } from 'lodash'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import BalanceCard from '../../components/BalanceCard'
+import { TokenContext } from '../../components/TokenProvider'
 
 export default InvestmentList = ({ navigation, currencyExchanges = [], exchangeBalances = {}, tokens }) => {
+    const { getStableCoinRate } = useContext(TokenContext)
     const [icons] = useState({ ETH: require(`../../assets/eth.png`), ZIL: require(`../../assets/zil.png`) })
 
     const goToAddService = () => navigation.push('Add Service API')
@@ -26,16 +28,16 @@ export default InvestmentList = ({ navigation, currencyExchanges = [], exchangeB
         <SectionList
             sections={toSectionData(currencyExchanges, exchangeBalances)}
             keyExtractor={(item, index) => item + index}
-            renderItem={({ item: token, section: { type } }) => (
-<></>
-                // <BalanceCard
-                //     key={token.id}
-                //     onPress={() => goToService(type)}
-                //     name={capitalize(token.name)}
-                //     ticker={token.ticker}
-                //     balance={token.balances[0].savings || 0}
-                //     icon={icons[token.ticker]}
-                // />
+            renderItem={({ item: balance, section: { type } }) => (
+                <BalanceCard
+                    key={balance.id}
+                    onPress={() => goToService(type)}
+                    name={capitalize(tokens[balance.tokenId].name)}
+                    ticker={tokens[balance.tokenId].ticker}
+                    balance={balance.savings || 0}
+                    usd={balance.savings && getStableCoinRate({ id: balance.tokenId, name: tokens[balance.tokenId].name }) * balance.savings}
+                    icon={icons[tokens[balance.tokenId].ticker]}
+                />
             )}
             renderSectionHeader={({ section: { title, type } }) => (
                 <>

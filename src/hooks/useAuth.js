@@ -16,7 +16,7 @@ export default useAuth = () => {
                 if(res.status == 200) {
                     return res.json()
                 } else {
-                    console.log(res.status || 'fetch failed')
+                    console.log(res.status || 'fetch failed', route)
                     throw 'cancel'
                 }
             },
@@ -33,7 +33,7 @@ export default useAuth = () => {
                 }
             )
         )
-        .then(handleResponse, err => console.log(err))
+        .then(handleResponse(route), err => console.log(err))
 
     const post = (route, body) => Promise.resolve()
         .then(() => getToken())
@@ -47,7 +47,7 @@ export default useAuth = () => {
                 }
             )
         )
-        .then(handleResponse, err => console.log(err))
+        .then(handleResponse(route), err => console.log(err))
 
     const del = (route) => Promise.resolve()
         .then(() => getToken())
@@ -60,15 +60,15 @@ export default useAuth = () => {
                 }
             )
         )
-        .then(handleResponse, err => console.log(err))
+        .then(handleResponse(route), err => console.log(err))
 
-    const handleResponse = res => {
+    const handleResponse = route => res => {
         if(res.status >= 200 && res.status < 300) {
             return (res.status == 200 || res.status == 201) && res.json()
         } else if(res.status == 401) {
             return refreshToken()
         } else {
-            console.log(res.status || 'fetch failed')
+            console.log(res.status || 'fetch failed', route)
             throw 'cancel'
         }
     }

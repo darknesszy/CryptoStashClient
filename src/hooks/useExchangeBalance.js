@@ -22,9 +22,9 @@ export default useExchangeBalance = accounts => {
                         )
                     )
                 )
-                .then(pairs => [
+                .then(tokenBalancePairs => [
                     account,
-                    pairs.reduce(
+                    tokenBalancePairs.reduce(
                         (dict, [token, balances]) => ({
                             ...dict,
                             [token.id]: balances
@@ -34,10 +34,10 @@ export default useExchangeBalance = accounts => {
                 ])
         )
     )
-        .then(pairs => pairs.reduce(
-            (dict, [account, tokenBalances]) => ({
+        .then(accountTokenPairs => accountTokenPairs.reduce(
+            (dict, [account, tokens]) => ({
                 ...dict,
-                [account.id]: tokenBalances
+                [account.id]: tokens
             }),
             {}
         ))
@@ -54,6 +54,7 @@ export default useExchangeBalance = accounts => {
                 [account.currencyExchange.id]: Object.keys(accountTokens[account.id])
                     .reduce(
                         (acc, tokenId) => ({
+                            ...acc,
                             [tokenId]: acc[tokenId] 
                                 ? mergeBalances(acc[tokenId], accountTokens[account.id][tokenId][0])
                                 : accountTokens[account.id][tokenId][0]
@@ -66,7 +67,7 @@ export default useExchangeBalance = accounts => {
 
     const mergeBalances = (source, target) => ({
         ...source,
-        savings: source.savings + target
+        savings: source.savings + target.savings
     })
 
     return {

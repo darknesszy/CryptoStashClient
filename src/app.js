@@ -5,6 +5,7 @@ import PushNotification from 'react-native-push-notification'
 import config from 'react-native-config'
 import Navigation from './navigation'
 import UserProvider from './components/UserProvider'
+import TokenProvider from './components/TokenProvider'
 
 if (Platform.OS == 'ios') {
     PushNotification.configure({
@@ -51,7 +52,9 @@ if (Platform.OS == 'ios') {
 export default () => {
     return (
         <UserProvider>
-            <Navigation />
+            <TokenProvider>
+                <Navigation />
+            </TokenProvider>
         </UserProvider>
     )
 }
