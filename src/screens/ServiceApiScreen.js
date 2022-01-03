@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Alert, SectionList } from 'react-native'
 import styled from 'styled-components/native'
 import Button from '../components/Button'
@@ -10,27 +10,39 @@ import useExchangeBalance from '../hooks/useExchangeBalance'
 import useAuth from '../hooks/useAuth'
 
 export default ServiceApiScreen = ({ navigation }) => {
-    const { del } = useAuth()
-    const { accounts } = useExchangeBalance()
+    const { get, del } = useAuth()
+    const [accounts, setAccounts] = useState([])
+    // const { accounts } = useExchangeBalance()
+
+    const loadAccounts = () => Promise.resolve()
+        .then(() => get('exchangeaccounts'))
+        .then(accounts => setAccounts(accounts))
 
     const removeAccount = id => Promise.resolve()
         .then(() => del(`exchangeaccounts/${id}`))
 
     const handlePress = account => () => Alert.alert(
         'Remove Account?',
-        `Are you sure you want to stop monitoring ${account.identifier}?`,
+        `Are you sure you want to stop monitoring \"${account.name}\" on ${capitalize(account.currencyExchange.name)}?`,
         [
             {
                 text: "Cancel",
                 onPress: () => console.log("Cancel Pressed"),
                 style: "cancel"
             },
-            { text: "OK", onPress: () => removeAccount(account.id).then(() => getAccounts()) }
+            { text: "OK", onPress: () => removeAccount(account.id).then(() => loadAccounts()) }
         ]
     )
 
+    useEffect(() => {
+        const unsub = navigation.addListener('focus', () => {
+            loadAccounts()
+        })
+        return unsub
+    }, [navigation])
+
     const toSectionData = accounts => Object.values(
-        Object.values(accounts).reduce(
+        accounts.reduce(
             (acc, account) => ({ 
                 ...acc,
                 [account.currencyExchange.id]: {
@@ -59,7 +71,7 @@ export default ServiceApiScreen = ({ navigation }) => {
                         <AccountView key={account.id}>
                             <AccountTitle>{account.name}</AccountTitle>
                             <RemoveButton onPress={handlePress(account)}>
-                                <FontAwesomeIcon icon={faTimesCircle} color={'lightgrey'} size={24} />
+                                <FontAwesomeIcon icon={faTimesCircle} color={'lightgrey'} size={18} />
                             </RemoveButton>
                         </AccountView>
                         <Divider />
@@ -89,7 +101,7 @@ const PoolTitle = styled.Text`
 
 const AccountView = styled.View`
     flex-direction: row;
-    margin: 0 40px;
+    margin: 12px 40px;
 
     justify-content: space-between;
     align-items: center;

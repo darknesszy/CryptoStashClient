@@ -5,7 +5,7 @@ import Button from '../../components/Button'
 import { Divider } from '../../components/Divider'
 import { capitalize } from 'lodash'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faCogs } from '@fortawesome/free-solid-svg-icons'
 import BalanceCard from '../../components/BalanceCard'
 import { TokenContext } from '../../components/TokenProvider'
 
@@ -41,9 +41,18 @@ export default InvestmentList = ({ navigation, currencyExchanges = [], exchangeB
             )}
             renderSectionHeader={({ section: { title, type } }) => (
                 <>
-                    <ServiceButton onPress={() => goToService(type)}>
+                    <ServiceView>
                         <ServiceTitle>{title}</ServiceTitle>
-                    </ServiceButton>
+                        <MenuButton onPress={() => goToService(type)}>
+                            <FontAwesomeIcon
+                                icon={faCogs}
+                                color={'orange'}
+                                size={24}
+                            />
+                            <MenuText>Manage</MenuText>
+                        </MenuButton>
+                    </ServiceView>
+
                     <Divider />
                 </>
             )}
@@ -61,7 +70,7 @@ export default InvestmentList = ({ navigation, currencyExchanges = [], exchangeB
     )
 }
 
-const ServiceButton = styled(Button)`
+const ServiceView = styled.View`
     margin: 0 24px;
     margin-top: 12px;
     flex-direction: row;
@@ -71,16 +80,6 @@ const ServiceButton = styled(Button)`
 
 const ServiceTitle = styled.Text`
     font-size: 24px;
-`
-
-const ItemButton = styled(Button)`
-    margin: 0 24px;
-    margin-top: 12px;
-
-    flex: 1;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
 `
 
 const AddButton = styled(Button)`
@@ -100,4 +99,19 @@ const AddButtonText = styled.Text`
 
     font-size: 18px;
     color: grey;
+`
+
+const MenuText = styled.Text`
+    margin-left: 10px;
+
+    font-size: 18px;
+    color: black;
+`
+
+const MenuButton = styled(Button)`
+    padding: 4px 8px;
+
+    flex-direction: row;
+    border: 1px solid orange;
+    border-radius: 5px;
 `

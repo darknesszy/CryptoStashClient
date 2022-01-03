@@ -64,7 +64,6 @@ export default PortfolioBreakdown = ({ portfolio }) => {
           stroke: "#ffa726"
         }
       }}
-      absolute
       style={{
         borderRadius: 10,
         marginLeft: 24,

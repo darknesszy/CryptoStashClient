@@ -24,8 +24,8 @@ export default ({ navigation }) => {
 
     const [index, setIndex] = useState(0)
     const [routes] = useState([
-        { key: 'overview', title: 'Overview' },
-        { key: 'cash', title: 'Cash' },
+        // { key: 'overview', title: 'Overview' },
+        { key: 'wallets', title: 'Wallets' },
         { key: 'accounts', title: 'Accounts' }
     ])
 
@@ -67,9 +67,10 @@ export default ({ navigation }) => {
                         tokens={tokens}
                     />
                 ),
-                cash: () => (
+                wallets: () => (
                     <WalletList 
                         navigation={navigation}
+                        load={loadWallets}
                         wallets={wallets}
                         balances={walletBalances}
                         blockchains={blockchains}
