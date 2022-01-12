@@ -24,7 +24,7 @@ export default ({ navigation }) => {
 
     const [index, setIndex] = useState(0)
     const [routes] = useState([
-        // { key: 'overview', title: 'Overview' },
+        { key: 'overview', title: 'Overview' },
         { key: 'wallets', title: 'Wallets' },
         { key: 'accounts', title: 'Accounts' }
     ])

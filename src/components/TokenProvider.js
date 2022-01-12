@@ -40,7 +40,7 @@ export default TokenProvider = props => {
 
     const getStableCoinRate = token => exchangeRates[token.id] 
         ? exchangeRates[token.id][1014].current
-        : token.name.includes('USD') && 1
+        : token.name && token.name.includes('USD') && 1
 
     const load = (buyerToken, sellerToken) => Promise.resolve()
         .then(() => pubGet(

@@ -6,7 +6,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer'
 import { NavigationContainer } from '@react-navigation/native'
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faCoffee, faExchangeAlt, faWallet, faBars, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faCoffee, faExchangeAlt, faWallet, faBars, faPlus, faUserCircle } from '@fortawesome/free-solid-svg-icons'
 
 import HomeScreen from './screens/HomeScreen'
 import MiningScreen from './screens/MiningScreen'
@@ -22,9 +22,11 @@ import MiningProvider from './components/MiningProvider'
 import WalletAddScreen from './screens/WalletAddScreen'
 import ServiceApiAddScreen from './screens/ServiceApiAddScreen'
 import ServiceApiScreen from './screens/ServiceApiScreen'
+import { Platform, Text } from 'react-native'
 
 const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
+const Stack = createNativeStackNavigator()
 
 const HomeStack = createNativeStackNavigator()
 const MiningStack = createNativeStackNavigator()
@@ -52,7 +54,11 @@ const FinanceStackScreen = () => (
             name="Financial Services"
             component={FinanceScreen}
             options={({ navigation }) => ({
-                headerLeft: () => <HeaderBtn onPress={() => navigation.openDrawer()} icon={faBars} />
+                headerLeft: () => Platform.OS == 'ios' ? (
+                    <HeaderBtn onPress={() => navigation.push('Account')} icon={faUserCircle} />
+                ) : (
+                    <HeaderBtn onPress={() => navigation.openDrawer()} icon={faBars} />
+                )
             })}
         />
     </FinanceStack.Navigator>
@@ -65,12 +71,11 @@ const MiningStackScreen = () => (
                 name="Mining Dashboard"
                 component={MiningScreen}
                 options={({ navigation }) => ({
-                    headerLeft: () => (
-                        <HeaderBtn
-                            onPress={() => navigation.openDrawer()}
-                            icon={faBars}
-                        />
-                    ),
+                    headerLeft: () => Platform.OS == 'ios' ? (
+                            <HeaderBtn onPress={() => navigation.push('Account')} icon={faUserCircle} />
+                        ) : (
+                            <HeaderBtn onPress={() => navigation.openDrawer()} icon={faBars} />
+                        ),
                     headerRight: () => (
                         <HeaderBtn
                             onPress={() => navigation.push('Add Mining Account')}
@@ -116,7 +121,11 @@ const PortfolioStackScreen = () => (
             name="My Portfolio"
             component={PortfolioScreen}
             options={({ navigation }) => ({
-                headerLeft: () => <HeaderBtn onPress={() => navigation.openDrawer()} icon={faBars} />
+                headerLeft: () => Platform.OS == 'ios' ? (
+                    <HeaderBtn onPress={() => navigation.push('Account')} icon={faUserCircle} />
+                ) : (
+                    <HeaderBtn onPress={() => navigation.openDrawer()} icon={faBars} />
+                )
             })}
         />
         <PortfolioStack.Screen
@@ -172,7 +181,25 @@ const TabNavigator = () => (
 )
 
 export default Navigation = () => {
-    return (
+    return Platform.OS == 'ios' ? (
+        <NavigationContainer>
+            <Stack.Navigator>
+                <Stack.Screen name="TabNavigator" component={TabNavigator} options={{ headerShown: false }} />
+                <Stack.Screen 
+                    name="Account"
+                    component={DrawerScreen}
+                    options={({ navigation }) => ({ 
+                        presentation: 'formSheet',
+                        headerRight: () => (
+                            <Button onPress={() => navigation.goBack()}>
+                                <Text>Done</Text>
+                            </Button>
+                        )
+                    })}
+                />
+            </Stack.Navigator>
+        </NavigationContainer>
+    ) : (
         <NavigationContainer>
             <Drawer.Navigator drawerContent={props => <DrawerScreen {...props} />}>
                 <Drawer.Screen name="TabNavigator" component={TabNavigator} options={{ headerShown: false }} />

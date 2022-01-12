@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { Dimensions } from 'react-native'
 import { useForm, Controller } from 'react-hook-form'
 import styled from 'styled-components/native'
@@ -16,6 +16,7 @@ export default WalletAddScreen = ({ navigation }) => {
     const { post } = useAuth()
     const { blockchains } = useBlockchain()
     const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm()
+    const [chainPicker, setChainPicker] = useState(Platform.OS == 'android')
 
     useEffect(() => {
         return navigation.addListener('focus', () => inputRef && inputRef.current.focus())
@@ -58,19 +59,30 @@ export default WalletAddScreen = ({ navigation }) => {
                         required: true,
                     }}
                     render={({ field: { onChange, onBlur, value } }) => (
-                        <CurrencyPicker
-                            selectedValue={value}
-                            onValueChange={onChange}
-                        >
-                            {Object.values(blockchains).map(blockchain => (
-                                <Picker.Item 
-                                    key={blockchain.id} 
-                                    label={capitalize(blockchain.name)}
-                                    value={blockchain.id} 
-                                />
-                            ))}
-                        </CurrencyPicker>
+                        <>
+                            {Platform.OS == 'ios' ? (
+                                <PickerButton onPress={() => setChainPicker(p => !p)}>
+                                    <PickerText>
+                                        {blockchains && blockchains[value] && capitalize(blockchains[value].name)}
+                                    </PickerText>
+                                </PickerButton>
+                            ) : null}
+                            <ChainPicker
+                                show={chainPicker}
+                                selectedValue={value}
+                                onValueChange={onChange}
+                            >
+                                {Object.values(blockchains).map(blockchain => (
+                                    <Picker.Item 
+                                        key={blockchain.id} 
+                                        label={capitalize(blockchain.name)}
+                                        value={blockchain.id} 
+                                    />
+                                ))}
+                            </ChainPicker>
+                        </>
                     )}
+                    defaultValue={1}
                     name='blockchain'
                 />
                 <SubmitButton disabled={isSubmitting} onPress={handleSubmit(onSubmit)}>
@@ -96,29 +108,78 @@ const InfoInput = styled(Input)`
     padding: 8px;
 `
 
-const LabelText = styled.Text`
+const LabelTextBase = styled.Text`
     padding: 24px 5px 0 0;
 `
+
+const LabelText = Platform.OS == 'ios'
+    ? styled(LabelTextBase)`
+        padding: 24px 12px 4px 12px;
+        color: grey;
+    `
+    : styled(LabelTextBase)`
+        padding: 24px 5px 0 0;
+    `
 
 const ErrorText = styled.Text`
 
 `
 
-const SubmitButton = styled(Button)`
+const SubmitButtonBase = styled(Button)`
     margin-top: 24px;
 
     justify-content: center;
     align-items: center;
-    background-color: blue;
-
-    border-radius: 5px;
 `
 
-const CurrencyPicker = styled(Picker)`
-    background-color: lightgrey;
-`
+const SubmitButton = Platform.OS == 'ios'
+    ? styled(SubmitButtonBase)`
 
-const ButtonText = styled.Text`
+    `
+    : styled(SubmitButtonBase)`
+        background-color: blue;
+        border-radius: 5px;
+    `
+
+const ButtonTextBase = styled.Text`
     color: white;
     margin: 12px;
+`
+
+const ButtonText = Platform.OS == 'ios'
+    ? styled(ButtonTextBase)`
+        font-size: 18px;
+        color: #007AFF;
+    `
+    : styled(ButtonTextBase)`
+        color: white;
+    `
+
+const ChainPickerBase = styled(Picker)`
+
+`
+
+const ChainPicker = Platform.OS == 'ios'
+    ? styled(ChainPickerBase)`
+        display: ${({ show }) => show ? 'flex': 'none'};
+
+        border-bottom-color: lightgrey;
+        border-bottom-width: 1px;
+        border-style: solid;
+    `
+    : styled(ChainPickerBase)`
+        background-color: lightgrey;
+    `
+
+const PickerButton = styled(Button)`
+    border-bottom-color: lightgrey;
+    border-bottom-width: 1px;
+    border-style: solid;
+`
+
+const PickerText = styled.Text`
+    margin: 8px 0;
+
+    font-size: 18px;
+    color: #007AFF;
 `

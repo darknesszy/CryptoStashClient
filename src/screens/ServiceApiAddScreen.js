@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
+import { Platform } from 'react-native'
 import { useForm, Controller } from 'react-hook-form'
 import styled from 'styled-components/native'
 import { Picker } from '@react-native-picker/picker'
@@ -13,6 +14,8 @@ export default ServiceApiAddScreen = ({ navigation }) => {
     const { get, post } = useAuth()
     const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm()
     const [providers, setProviders] = useState([])
+    const [typePicker, setTypePicker] = useState(Platform.OS == 'android')
+    const [currencyPicker, setCurrencyPicker] = useState(Platform.OS == 'android')
 
     useEffect(() => {
         loadProvider(1)
@@ -20,7 +23,8 @@ export default ServiceApiAddScreen = ({ navigation }) => {
 
     const loadProvider = value => {
         if (value == 1) {
-            get('currencyexchanges').then(exchanges => setProviders(exchanges))
+            get('currencyexchanges')
+                .then(exchanges => setProviders(exchanges))
         }
     }
 
@@ -41,7 +45,7 @@ export default ServiceApiAddScreen = ({ navigation }) => {
         .then(() => console.log(`Posting new service api`, data))
         .then(() => {
             if(data['type'] == 1) {
-                return addExchangeAccount(sub, data['name'], data['key'], data['secret'], data['provider'])
+                return addExchangeAccount(sub, data['name'], data['key'], data['secret'], providers[data['provider']])
             }
         })
         .then(() => navigation.goBack())
@@ -57,17 +61,26 @@ export default ServiceApiAddScreen = ({ navigation }) => {
                         required: true,
                     }}
                     render={({ field: { onChange, onBlur, value } }) => (
-                        <CurrencyPicker
-                            def
-                            selectedValue={value}
-                            onValueChange={(itemValue, itemIndex) => {
-                                loadProvider(itemValue)
-                                onChange(itemValue, itemIndex)
-                            }}
-                        >
-                            <Picker.Item label='Currency Exchange' value={1} />
-                        </CurrencyPicker>
+                        <>
+                            {Platform.OS == 'ios' ? (
+                                <PickerButton onPress={() => setTypePicker(p => !p)}>
+                                    <PickerText>{'Currency Exchange'}</PickerText>
+                                </PickerButton>
+                            ) : null}
+                            <CurrencyPicker
+                                def
+                                show={typePicker}
+                                selectedValue={value}
+                                onValueChange={(itemValue, itemIndex) => {
+                                    loadProvider(itemValue)
+                                    onChange(itemValue, itemIndex)
+                                }}
+                            >
+                                <Picker.Item label='Currency Exchange' value={1} />
+                            </CurrencyPicker>
+                        </>
                     )}
+                    defaultValue={1}
                     name='type'
                 />
                 <LabelText>Service Provider</LabelText>
@@ -77,20 +90,31 @@ export default ServiceApiAddScreen = ({ navigation }) => {
                         required: true,
                     }}
                     render={({ field: { onChange, onBlur, value } }) => (
-                        <CurrencyPicker
-                            selectedValue={value}
-                            onValueChange={onChange}
-                            enabled={providers.length != 0}
-                        >
-                            {providers.map(provider => 
-                                <Picker.Item 
-                                    key={provider.id} 
-                                    label={capitalize(provider.name)}
-                                    value={provider} 
-                                />
-                            )}
-                        </CurrencyPicker>
+                        <>
+                            {Platform.OS == 'ios' ? (
+                                <PickerButton onPress={() => setCurrencyPicker(p => !p)}>
+                                    <PickerText>
+                                        {providers[value] && capitalize(providers[value].name)}
+                                    </PickerText>
+                                </PickerButton>
+                            ) : null}
+                            <CurrencyPicker
+                                show={currencyPicker}
+                                selectedValue={value}
+                                onValueChange={onChange}
+                                enabled={providers.length != 0}
+                            >
+                                {providers.map(provider => 
+                                    <Picker.Item 
+                                        key={provider.id} 
+                                        label={capitalize(provider.name)}
+                                        value={provider.id} 
+                                    />
+                                )}
+                            </CurrencyPicker>
+                        </>
                     )}
+                    defaultValue={0}
                     name='provider'
                 />
                 <LabelText>Name</LabelText>
@@ -166,29 +190,78 @@ const InfoInput = styled(Input)`
     padding: 8px;
 `
 
-const LabelText = styled.Text`
+const LabelTextBase = styled.Text`
     padding: 24px 5px 0 0;
 `
+
+const LabelText = Platform.OS == 'ios'
+    ? styled(LabelTextBase)`
+        padding: 24px 12px 4px 12px;
+        color: grey;
+    `
+    : styled(LabelTextBase)`
+        padding: 24px 5px 0 0;
+    `
 
 const ErrorText = styled.Text`
 
 `
 
-const SubmitButton = styled(Button)`
+const SubmitButtonBase = styled(Button)`
     margin-top: 24px;
 
     justify-content: center;
     align-items: center;
-    background-color: blue;
-
-    border-radius: 5px;
 `
 
-const CurrencyPicker = styled(Picker)`
-    background-color: lightgrey;
+const SubmitButton = Platform.OS == 'ios'
+    ? styled(SubmitButtonBase)`
+
+    `
+    : styled(SubmitButtonBase)`
+        background-color: blue;
+        border-radius: 5px;
+    `
+
+const CurrencyPickerBase = styled(Picker)`
+    
 `
 
-const ButtonText = styled.Text`
+const CurrencyPicker = Platform.OS == 'ios'
+    ? styled(CurrencyPickerBase)`
+        z-index: 1;
+        display: ${({ show }) => show ? 'flex': 'none'};
+        border-bottom-color: lightgrey;
+        border-bottom-width: 1px;
+        border-style: solid;
+    `
+    : styled(CurrencyPickerBase)`
+        background-color: lightgrey;
+    `
+
+const PickerButton = styled(Button)`
+    border-bottom-color: lightgrey;
+    border-bottom-width: 1px;
+    border-style: solid;
+`
+
+const PickerText = styled.Text`
+    margin: 8px 0;
+
+    font-size: 18px;
+    color: #007AFF;
+`
+
+const ButtonTextBase = styled.Text`
     color: white;
     margin: 12px;
 `
+
+const ButtonText = Platform.OS == 'ios'
+    ? styled(ButtonTextBase)`
+        font-size: 18px;
+        color: #007AFF;
+    `
+    : styled(ButtonTextBase)`
+        color: white;
+    `

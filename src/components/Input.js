@@ -2,17 +2,19 @@ import React, { forwardRef, useState } from 'react'
 import { Platform } from 'react-native'
 import styled from 'styled-components/native'
 
-let Input
-
-if(Platform.OS == 'ios') {
-    Input = props => (
-        <IOSInput { ...props } />
-    )
-} else {
-    Input = forwardRef((props, ref) => {
+const Input = forwardRef((props, ref) => {
         const [isActive, setIsActive] = useState()
 
-        return (
+        return Platform.OS == 'ios' ?
+        (
+            <IOSInput
+                ref={ref}
+                { ...props }
+                isActive={isActive}
+                onFocus={() => setIsActive(true)}
+                onBlur={() => setIsActive(false)}
+            />
+        ) : (
             <AndroidInput
                 ref={ref}
                 { ...props }
@@ -22,7 +24,6 @@ if(Platform.OS == 'ios') {
             />
         )
     })
-}
 
 export default Input
 
@@ -34,7 +35,9 @@ const BaseInput = styled.TextInput`
 `
 
 const IOSInput = styled(BaseInput)`
-    border: 1px solid lightgrey;
+    border: 2px solid lightgrey;
+    border-radius: 10px;
+    border-color: ${props => props.isActive ? '#007AFF' : 'lightgrey'};
 `
 
 const AndroidInput = styled(BaseInput)`

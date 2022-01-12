@@ -3,6 +3,7 @@ import styled from 'styled-components/native'
 import { DrawerContentScrollView } from '@react-navigation/drawer'
 import Button from '../components/Button'
 import { UserContext } from '../components/UserProvider'
+import { Platform } from 'react-native'
 
 export default DrawerScreen = () => {
     const { signin, signout, sub, preferred_username } = useContext(UserContext)
@@ -40,10 +41,14 @@ export default DrawerScreen = () => {
     )
 }
 
-const DrawerView = styled(DrawerContentScrollView)`
-    margin-top: 24px;
-    padding: 0 24px;
-`
+const DrawerView = Platform.OS == 'ios'
+    ? styled.View`
+        padding: 0 24px;
+    `
+    : styled(DrawerContentScrollView)`
+        margin-top: 24px;
+        padding: 0 24px;
+    `
 
 const UserView = styled.View`
     flex-direction: row;

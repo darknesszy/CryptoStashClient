@@ -2,7 +2,7 @@ import React, { useState, createContext, useEffect } from 'react'
 import config from 'react-native-config'
 import { authorize, refresh, revoke } from 'react-native-app-auth'
 import Keychain from 'react-native-keychain'
-import { AppState, Linking } from 'react-native'
+import { AppState, Linking, Platform } from 'react-native'
 
 export const UserContext = createContext({})
 let isRefreshing = false

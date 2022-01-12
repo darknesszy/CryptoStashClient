@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useRef } from 'react'
-import { Dimensions } from 'react-native'
+import React, { useContext, useEffect, useRef, useState } from 'react'
+import { Dimensions, Platform } from 'react-native'
 import { useForm, Controller } from 'react-hook-form'
 import styled from 'styled-components/native'
 import { Picker } from '@react-native-picker/picker'
@@ -17,6 +17,8 @@ export default MiningAccountAddScreen = ({ navigation }) => {
 
     const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm()
     const { pools } = usePool()
+
+    const [poolPicker, setPoolPicker] = useState(Platform.OS == 'android')
 
     useEffect(() => {
         return navigation.addListener('focus', () => inputRef && inputRef.current.focus())
@@ -57,19 +59,28 @@ export default MiningAccountAddScreen = ({ navigation }) => {
                         required: true,
                     }}
                     render={({ field: { onChange, onBlur, value } }) => (
-                        <PoolPicker
-                            selectedValue={value}
-                            onValueChange={onChange}
-                        >
-                            {Object.values(pools).map(pool => (
-                                <Picker.Item 
-                                    key={pool.id} 
-                                    label={`${capitalize(pool.name)} Pool`}
-                                    value={pool.id} 
-                                />
-                            ))}
-                        </PoolPicker>
+                        <>
+                            {Platform.OS == 'ios' ? (
+                                <PickerButton onPress={() => setPoolPicker(p => !p)}>
+                                    <PickerText>{pools && pools[value] && `${capitalize(pools[value].name)} Pool`}</PickerText>
+                                </PickerButton>
+                            ) : null}
+                            <PoolPicker
+                                show={poolPicker}
+                                selectedValue={value}
+                                onValueChange={onChange}
+                            >
+                                {Object.values(pools).map(pool => (
+                                    <Picker.Item 
+                                        key={pool.id} 
+                                        label={`${capitalize(pool.name)} Pool`}
+                                        value={pool.id} 
+                                    />
+                                ))}
+                            </PoolPicker>
+                        </>
                     )}
+                    defaultValue={1}
                     name='pool'
                 />
                 <SubmitButton disabled={isSubmitting} onPress={handleSubmit(onSubmit)}>
@@ -95,29 +106,77 @@ const InfoInput = styled(Input)`
     padding: 8px;
 `
 
-const LabelText = styled.Text`
+const LabelTextBase = styled.Text`
     padding: 24px 5px 0 0;
 `
+
+const LabelText = Platform.OS == 'ios'
+    ? styled(LabelTextBase)`
+        padding: 24px 12px 4px 12px;
+        color: grey;
+    `
+    : styled(LabelTextBase)`
+        padding: 24px 5px 0 0;
+    `
 
 const ErrorText = styled.Text`
 
 `
 
-const SubmitButton = styled(Button)`
+const SubmitButtonBase = styled(Button)`
     margin-top: 24px;
 
     justify-content: center;
     align-items: center;
-    background-color: blue;
-
-    border-radius: 5px;
 `
 
-const PoolPicker = styled(Picker)`
-    background-color: lightgrey;
-`
+const SubmitButton = Platform.OS == 'ios'
+    ? styled(SubmitButtonBase)`
 
-const ButtonText = styled.Text`
+    `
+    : styled(SubmitButtonBase)`
+        background-color: blue;
+        border-radius: 5px;
+    `
+
+const ButtonTextBase = styled.Text`
     color: white;
     margin: 12px;
+`
+
+const ButtonText = Platform.OS == 'ios'
+    ? styled(ButtonTextBase)`
+        font-size: 18px;
+        color: #007AFF;
+    `
+    : styled(ButtonTextBase)`
+        color: white;
+    `
+
+const PoolPickerBase = styled(Picker)`
+
+`
+
+const PoolPicker = Platform.OS == 'ios'
+    ? styled(PoolPickerBase)`
+        display: ${({ show }) => show ? 'flex': 'none'};
+        border-bottom-color: lightgrey;
+        border-bottom-width: 1px;
+        border-style: solid;
+    `
+    : styled(PoolPickerBase)`
+        background-color: lightgrey;
+    `
+
+const PickerButton = styled(Button)`
+    border-bottom-color: lightgrey;
+    border-bottom-width: 1px;
+    border-style: solid;
+`
+
+const PickerText = styled.Text`
+    margin: 8px 0;
+
+    font-size: 18px;
+    color: #007AFF;
 `

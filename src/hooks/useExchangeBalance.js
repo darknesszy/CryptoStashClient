@@ -45,7 +45,12 @@ export default useExchangeBalance = accounts => {
 
     const getCurrencyExchanges = accounts => accounts && accounts
         .filter(account => account.currencyExchange.id)
-        .map(account => account.currencyExchange)
+        .reduce((deduped, account) => 
+            deduped.map(el => el.id).indexOf(account.currencyExchange.id) == -1
+            ? [ ...deduped, account.currencyExchange ]
+            : [ ...deduped ],
+            []
+        )
 
     const getExchangeBalances = (accounts, accountTokens) =>
         accounts.reduce(
